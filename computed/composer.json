@@ -1,0 +1,17 @@
+{
+  "name": "supersonictw/gle",
+  "type": "project",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Gle\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "SuperSonic",
+      "email": "supersonic@livemail.tw"
+    }
+  ],
+  "require": {}
+}

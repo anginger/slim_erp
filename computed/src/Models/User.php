@@ -75,6 +75,14 @@ class User extends ModelBase implements ModelInterface
     }
 
     /**
+     * @return string
+     */
+    public function getUuid(): string
+    {
+        return $this->uuid;
+    }
+
+    /**
      * @param string $username
      * @return User
      */

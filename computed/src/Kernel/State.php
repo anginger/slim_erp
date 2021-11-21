@@ -2,7 +2,7 @@
 // Justin PHP Framework
 // (c)2021 SuperSonic(https://randychen.tk)
 
-namespace Gle\Kernel;
+namespace Slim\Kernel;
 
 class State
 {

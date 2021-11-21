@@ -1,85 +1,89 @@
 <?php
 declare (strict_types=1);
 
-namespace Gle\Models;
+namespace Slim\Models;
 
-use Gle\Kernel\Database;
+use Slim\Kernel\Database;
 
-class ORMBase
+class ORMBase implements DatabaseInterface
 {
+    protected string $clazz;
+    /**
+     * @var array|string[]
+     */
+    protected array $props;
+    protected array $primary;
 
     public function __construct(
-        private string $primary_key_field,
-    ): void
+        protected string $primary_key_field,
+    )
     {
+        $formatter = fn($name) => strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
+        $this->clazz = $formatter(get_class());
+        $this->props = array_map($formatter, get_class_vars($this->clazz));
+        $this->primary = [$this->primary_key_field, $this->props[$this->primary_key_field]];
     }
 
-    public function find(Database $database, ...$arguments): static
+    public function checkReady(): bool
     {
-        [$clazz, $props] = $this->getArguments();
-        $props = implode(", ", $props);
+        return isset($this->primary[1]);
+    }
+
+    public function find(Database $db_instance, ...$arguments): static
+    {
+        $props = implode(", ", $this->props);
         $arguments = implode(" ", $arguments);
-        $sql = "SELECT $props FROM `$clazz` WHERE $arguments";
-        $stmt = $database->getClient()->prepare();
-        $database->bindParamsFilled($stmt, $this->toArray());
+        $sql = "SELECT {$props} FROM `{$this->clazz}` WHERE {$arguments}";
+        $stmt = $db_instance->getClient()->prepare($sql);
+        $db_instance->bindParamsFilled($stmt, $this->toArray());
         $stmt->execute();
         return $this;
     }
 
-    public function load(Database $database): static
+    public function load(Database $db_instance): static
     {
-        [$clazz, $props] = $this->getArguments();
-        $props = implode(", ", $props);
-        $primary_key = "$primary[0] = $primary[1]"
-        $sql = "SELECT $props FROM `$clazz` WHERE $primary_key";
-        $stmt = $database->getClient()->prepare();
-        $database->bindParamsFilled($stmt, $this->toArray());
+        $props = implode(", ", $this->props);
+        $primary_key = "{$this->primary[0]} = {$this->primary[1]}";
+        $sql = "SELECT {$props} FROM `{$this->clazz}` WHERE {$primary_key}";
+        $stmt = $db_instance->getClient()->prepare($sql);
+        $db_instance->bindParamsFilled($stmt, $this->toArray());
         $stmt->execute();
         return $this;
     }
 
-    public function create(Database $database): static
+    public function create(Database $db_instance): bool
     {
-        [$clazz, $props] = $this->getArguments();
-        $props = implode(", ", array_map(fn($name) => ":$name", $props));
-        $sql = "INSERT INTO `$clazz` VALUE ($props)";
-        $stmt = $database->getClient()->prepare();
-        $database->bindParamsFilled($stmt, $this->toArray());
-        $stmt->execute();
-        return $this->load();
+        $props = implode(", ", array_map(fn($name) => ":$name", $this->props));
+        $sql = sprintf("INSERT INTO `%s` VALUE (%s)", $this->clazz, $props);
+        $stmt = $db_instance->getClient()->prepare($sql);
+        $db_instance->bindParamsFilled($stmt, $this->toArray());
+        return $stmt->execute();
     }
 
-    public function replace(Database $database): static
+    public function replace(Database $db_instance): bool
     {
-        [$clazz, $props, $primary] = $this->getArguments();
-        $props = implode(", ", array_map(fn($name) => "$name = :$name", $props));
-        $primary_key = "$primary[0] = $primary[1]"
-        $sql = "UPDATE `$clazz` SET $props WHERE $primary_key";
-        $stmt = $database->getClient()->prepare();
-        $database->bindParamsFilled($stmt, $this->toArray());
-        $stmt->execute();
-        return $this->load();
+        $props = implode(", ", array_map(fn($name) => "$name = :$name", $this->props));
+        $primary_key = "{$this->primary[0]} = {$this->primary[1]}";
+        $sql = "UPDATE `{$this->clazz}` SET {$props} WHERE {$primary_key}";
+        $stmt = $db_instance->getClient()->prepare($sql);
+        $db_instance->bindParamsFilled($stmt, $this->toArray());
+        return $stmt->execute();
     }
 
-    public function destroy(Database $database): bool
+    public function destroy(Database $db_instance): bool
     {
-        [$clazz, $props] = $this->getArguments();
-        $props = implode(", ", array_map(fn($name) => "$name = :$name", $props));
-        $primary_key = "$primary[0] = $primary[1]"
-        $sql = "DELETE FROM `$clazz` WHERE $primary_key";
-        $stmt = $database->getClient()->prepare();
-        $database->bindParamsFilled($stmt, $this->toArray());
-        $stmt->execute();
-        unset($this);
-        return true;
+        $primary_key = "{$this->primary[0]} = {$this->primary[1]}";
+        $sql = sprintf("DELETE FROM `%s` WHERE %s", $this->clazz, $primary_key);
+        $stmt = $db_instance->getClient()->prepare($sql);
+        $db_instance->bindParamsFilled($stmt, $this->toArray());
+        return $stmt->execute();
     }
 
-    public function fromArray(array $array): ModelInterface
+    public function fromArray(array $array): DatabaseInterface
     {
         foreach ($array as $key => $value) {
             $this->{$key} = $value;
         }
-        assert($this instanceof ModelInterface);
         return $this;
     }
 
@@ -88,22 +92,8 @@ class ORMBase
         return (array)$this;
     }
 
-    private function getArguments(): array
-    {
-        $formater = fn($name) => strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $name));
-        $clazz = $formater(get_class());
-        $props = $formater(get_class_vars());
-        $primary = [$this->primary_key_field => $props[$this->primary_key_field]]
-        return compact("clazz", "props", "primary");
-    }
-
     public function jsonSerialize(): array
     {
-        return [
-            "area" => $this->area(),
-            "height" => $this->height,
-            "perimeter" => $this->perimeter(),
-            "width" => $this->width,
-        ];
+        return $this->toArray();
     }
 }

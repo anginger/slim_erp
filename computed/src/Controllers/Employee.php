@@ -1,37 +1,38 @@
 <?php
 declare (strict_types=1);
 
-namespace Gle\Controllers;
+namespace Slim\Controllers;
 
-use Gle\Kernel\Context;
+use Slim\Kernel\Context;
+use Slim\Models\User;
 
 final class Employee
 {
     public function getUsers(Context $context): void
     {
-        $users = \Gle\Models\User::all();
-        $context->getResponse()->setStatus(200)->sendJSON($users);
+        $users = (new User())->all($context->getDatabase());
+        $context->getResponse()->setStatus(200)->setBody($users)->sendJSON();
     }
 
     public function postUser(Context $context): void
     {
         $form = $context->getRequest()->read();
-        $user = new \Gle\Models\User();
+        $user = new User();
         $user
             ->setDisplayName($form["display_name"])
             ->setPassword($form["password"])
             ->setEmail($form["email"])
             ->setPhone($form["phone"])
             ->hashPassword()
-            ->create();
+            ->create($context->getDatabase());
         $context->getResponse()->setStatus(201)->send();
     }
 
     public function deleteUser(Context $context): void
     {
         $uuid = $context->getRequest()->getQuery("uuid");
-        $user = new \Gle\Models\User();
-        $user->setUuid($uuid)->destroy();
+        $user = new User();
+        $user->setUuid($uuid)->destroy($context->getDatabase());
         $context->getResponse()->setStatus(204)->send();
     }
 }

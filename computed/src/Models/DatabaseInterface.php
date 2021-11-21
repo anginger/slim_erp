@@ -1,8 +1,8 @@
 <?php
 
-namespace Gle\Models;
+namespace Slim\Models;
 
-use Gle\Kernel\Database;
+use Slim\Kernel\Database;
 use JsonSerializable;
 
 interface DatabaseInterface extends JsonSerializable

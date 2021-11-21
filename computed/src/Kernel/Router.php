@@ -1,6 +1,6 @@
 <?php
 
-namespace Gle\Kernel;
+namespace Slim\Kernel;
 
 class Router
 {

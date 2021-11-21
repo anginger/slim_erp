@@ -6,10 +6,12 @@ use PDO;
 use Slim\Kernel\Database;
 use TypeError;
 
-class Level extends ModelBase implements ModelInterface
+class History extends ModelBase implements ModelInterface
 {
     public int $_id;
-    public string $display_name;
+    public string $user;
+    public string $method;
+    public string $resource;
 
     use ModelUtils;
 
@@ -21,17 +23,17 @@ class Level extends ModelBase implements ModelInterface
     public static function batch(Database $db_instance): array
     {
         $sql = "
-            SELECT `_id`, `display_name`
-            FROM `levels`
-            ORDER BY `display_name` DESC
+            SELECT `_id`, `created_time`, `user`, `method`, `resource`
+            FROM `histories`
+            ORDER BY `created_time` DESC
         ";
         $stmt = $db_instance->getClient()->prepare($sql);
         $stmt->execute();
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function (array $item) {
-            $level = new static();
-            $level->fromArray($item);
-            return $level;
+            $history = new static();
+            $history->fromArray($item);
+            return $history;
         }, $result);
     }
 
@@ -40,7 +42,7 @@ class Level extends ModelBase implements ModelInterface
         if (!is_int($filter)) {
             throw new TypeError();
         }
-        $sql = "SELECT `_id`, `display_name` FROM `levels` WHERE `_id` = ?";
+        $sql = "SELECT `_id`, `created_time`, `user`, `method`, `resource` FROM `histories` WHERE `_id` = ?";
         $stmt = $db_instance->getClient()->prepare($sql);
         $stmt->execute([$filter]);
         $this->loadResult($this, $stmt);
@@ -54,7 +56,7 @@ class Level extends ModelBase implements ModelInterface
 
     public function create(Database $db_instance): bool
     {
-        $sql = "INSERT INTO `levels`(`_id`, `display_name`) VALUES (:_id, :display_name)";
+        $sql = "INSERT INTO `histories`(`_id`, `created_time`, `user`, `method`, `resource`) VALUES (:_id, UNIX_TIMESTAMP(), :user, :method, :resource)";
         $stmt = $db_instance->getClient()->prepare($sql);
         $db_instance->bindParamsFilled($stmt, $this->toArray());
         $this->setId($db_instance->getClient()->lastInsertId());
@@ -63,7 +65,7 @@ class Level extends ModelBase implements ModelInterface
 
     public function replace(Database $db_instance): bool
     {
-        $sql = "UPDATE `levels` SET `display_name` = :display_name WHERE `_id` = :id";
+        $sql = "UPDATE `histories` SET `user` = :user, `method` = :method, `resource` = :resource WHERE `_id` = :id";
         $stmt = $db_instance->getClient()->prepare($sql);
         $db_instance->bindParamsFilled($stmt, $this->toArray());
         return $stmt->execute();
@@ -71,28 +73,18 @@ class Level extends ModelBase implements ModelInterface
 
     public function destroy(Database $db_instance): bool
     {
-        $sql = "DELETE FROM `levels` WHERE `_id` = ?";
+        $sql = "DELETE FROM `histories` WHERE `_id` = ?";
         $stmt = $db_instance->getClient()->prepare($sql);
         return $stmt->execute([$this->_id]);
     }
 
     /**
      * @param int $id
-     * @return Level
+     * @return History
      */
     public function setId(int $id): static
     {
         $this->_id = $id;
-        return $this;
-    }
-
-    /**
-     * @param string $display_name
-     * @return Level
-     */
-    public function setDisplayName(string $display_name): static
-    {
-        $this->display_name = $display_name;
         return $this;
     }
 }

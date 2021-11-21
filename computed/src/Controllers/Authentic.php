@@ -11,9 +11,9 @@ final class Authentic implements ControllerInterface
     {
         $user = $context->getState()->get("user");
         if ($user instanceof User && $user->checkReady()) {
-            $context->getResponse()->setStatus(204)->send();
+            $context->getResponse()->setStatus(200)->setBody($user)->sendJSON();
         } else {
-            $context->getResponse()->setStatus(401)->send();
+            $context->getResponse()->setStatus(401)->setBody(["message" => "unauthorized"])->sendJSON();
         }
     }
 
@@ -34,7 +34,7 @@ final class Authentic implements ControllerInterface
             $context->getSession()->set("user_id", $user->getUuid());
             $context->getResponse()->setStatus(201)->send();
         } else {
-            $context->getResponse()->setStatus(401)->send();
+            $context->getResponse()->setStatus(401)->setBody(["message" => "unauthorized"])->sendJSON();
         }
     }
 
@@ -45,7 +45,7 @@ final class Authentic implements ControllerInterface
             $context->getSession()->del("user_id");
             $context->getResponse()->setStatus(204)->send();
         } else {
-            $context->getResponse()->setStatus(401)->send();
+            $context->getResponse()->setStatus(401)->setBody(["message" => "unauthorized"])->sendJSON();
         }
     }
 }

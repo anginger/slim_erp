@@ -2,6 +2,7 @@
 
 namespace Slim\Models;
 
+use PDO;
 use Slim\Kernel\Database;
 use TypeError;
 
@@ -18,6 +19,23 @@ class Provider extends ModelBase implements ModelInterface
     public function checkReady(): bool
     {
         return isset($this->_id);
+    }
+
+    public static function batch(Database $db_instance): array
+    {
+        $sql = "
+            SELECT `_id`, `display_name`, `contact_name`, `contact_phone`, `contact_address`
+            FROM `providers`
+            ORDER BY `display_name` DESC
+        ";
+        $stmt = $db_instance->getClient()->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map(function (array $item) {
+            $provider = new static();
+            $provider->fromArray($item);
+            return $provider;
+        }, $result);
     }
 
     public function load(Database $db_instance, $filter): ModelInterface
@@ -42,6 +60,7 @@ class Provider extends ModelBase implements ModelInterface
         $sql = "INSERT INTO `providers` (`_id`, `display_name`, `contact_name`, `contact_phone`, `contact_address`) VALUES (:_id, :display_name, :contact_name, :contact_phone, :contact_address)";
         $stmt = $db_instance->getClient()->prepare($sql);
         $db_instance->bindParamsFilled($stmt, $this->toArray());
+        $this->setId($db_instance->getClient()->lastInsertId());
         return $stmt->execute();
     }
 
@@ -58,5 +77,55 @@ class Provider extends ModelBase implements ModelInterface
         $sql = "DELETE FROM `providers` WHERE `_id` = ?";
         $stmt = $db_instance->getClient()->prepare($sql);
         return $stmt->execute([$this->_id]);
+    }
+
+    /**
+     * @param int $id
+     * @return Provider
+     */
+    public function setId(int $id): static
+    {
+        $this->_id = $id;
+        return $this;
+    }
+
+    /**
+     * @param string $display_name
+     * @return Provider
+     */
+    public function setDisplayName(string $display_name): static
+    {
+        $this->display_name = $display_name;
+        return $this;
+    }
+
+    /**
+     * @param string $contact_name
+     * @return Provider
+     */
+    public function setContactName(string $contact_name): static
+    {
+        $this->contact_name = $contact_name;
+        return $this;
+    }
+
+    /**
+     * @param string $contact_phone
+     * @return Provider
+     */
+    public function setContactPhone(string $contact_phone): static
+    {
+        $this->contact_phone = $contact_phone;
+        return $this;
+    }
+
+    /**
+     * @param string $contact_address
+     * @return Provider
+     */
+    public function setContactAddress(string $contact_address): static
+    {
+        $this->contact_address = $contact_address;
+        return $this;
     }
 }

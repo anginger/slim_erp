@@ -3,24 +3,23 @@
 namespace Slim\Controllers;
 
 use Slim\Kernel\Context;
-use Slim\Models\Product as ProductModel;
-use Slim\Models\User;
+use Slim\Models\User as UserModel;
 
-final class Product implements ControllerInterface
+final class User implements ControllerInterface
 {
     public function getAll(Context $context): void
     {
-        if (!($context->getState()->get("user") instanceof User)) {
+        if (!($context->getState()->get("user") instanceof UserModel)) {
             $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
             return;
         }
-        $products = (new ProductModel())->batch($context->getDatabase());
+        $products = (new UserModel())->batch($context->getDatabase());
         $context->getResponse()->setBody($products)->sendJSON();
     }
 
     public function getOne(Context $context): void
     {
-        if (!($context->getState()->get("user") instanceof User)) {
+        if (!($context->getState()->get("user") instanceof UserModel)) {
             $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
             return;
         }
@@ -28,7 +27,7 @@ final class Product implements ControllerInterface
             $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        $product = (new ProductModel())->load($context->getDatabase(), $uuid);
+        $product = (new UserModel())->load($context->getDatabase(), $uuid);
         if ($product->checkReady()) {
             $context->getResponse()->setBody($product)->sendJSON();
         } else {
@@ -38,27 +37,34 @@ final class Product implements ControllerInterface
 
     public function postOne(Context $context): void
     {
-        if (!($context->getState()->get("user") instanceof User)) {
+        if (!($context->getState()->get("user") instanceof UserModel)) {
             $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
             return;
         }
         $form = $context->getRequest()->read();
         if (
-            !isset($form['display_name']) ||
-            !isset($form["cost_value"]) ||
-            !isset($form['sell_value']) ||
-            !isset($form["remain_amount"])
+            !isset($form['username']) ||
+            !isset($form["password"]) ||
+            !isset($form["sell_value"]) ||
+            !isset($form["display_name"]) ||
+            !isset($form["address"]) ||
+            !isset($form["email"]) ||
+            !isset($form["phone"])
         ) {
             $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        $product = new ProductModel();
+        $product = new UserModel();
         $product
             ->setUuid($context->getDatabase()->guidV4())
+            ->setUsername($form["username"])
+            ->setPassword($form["password"])
+            ->setLevel(intval($form["sell_value"]))
             ->setDisplayName($form['display_name'])
-            ->setCostValue(intval($form["cost_value"]))
-            ->setSellValue(intval($form["sell_value"]))
-            ->setRemainAmount(intval($form["remain_amount"]))
+            ->setAddress($form["address"])
+            ->setEmail($form["email"])
+            ->setPhone($form["phone"])
+            ->hashPassword()
             ->create($context->getDatabase());
         if ($product->reload($context->getDatabase())->checkReady()) {
             $context->getResponse()->setStatus(201)->send();
@@ -69,7 +75,7 @@ final class Product implements ControllerInterface
 
     public function deleteOne(Context $context): void
     {
-        if (!($context->getState()->get("user") instanceof User)) {
+        if (!($context->getState()->get("user") instanceof UserModel)) {
             $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
             return;
         }
@@ -77,7 +83,7 @@ final class Product implements ControllerInterface
             $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        (new ProductModel())->setUuid($uuid)->destroy($context->getDatabase());
+        (new UserModel())->setUuid($uuid)->destroy($context->getDatabase());
         $context->getResponse()->setStatus(204)->sendJSON();
     }
 }

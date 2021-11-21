@@ -3,10 +3,10 @@
 namespace Slim\Controllers;
 
 use Slim\Kernel\Context;
-use Slim\Models\Product as ProductModel;
+use Slim\Models\Level as LevelModel;
 use Slim\Models\User;
 
-final class Product implements ControllerInterface
+final class Level implements ControllerInterface
 {
     public function getAll(Context $context): void
     {
@@ -14,7 +14,7 @@ final class Product implements ControllerInterface
             $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
             return;
         }
-        $products = (new ProductModel())->batch($context->getDatabase());
+        $products = (new LevelModel())->batch($context->getDatabase());
         $context->getResponse()->setBody($products)->sendJSON();
     }
 
@@ -28,7 +28,7 @@ final class Product implements ControllerInterface
             $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        $product = (new ProductModel())->load($context->getDatabase(), $uuid);
+        $product = (new LevelModel())->load($context->getDatabase(), $uuid);
         if ($product->checkReady()) {
             $context->getResponse()->setBody($product)->sendJSON();
         } else {
@@ -43,22 +43,13 @@ final class Product implements ControllerInterface
             return;
         }
         $form = $context->getRequest()->read();
-        if (
-            !isset($form['display_name']) ||
-            !isset($form["cost_value"]) ||
-            !isset($form['sell_value']) ||
-            !isset($form["remain_amount"])
-        ) {
+        if (!isset($form['display_name'])) {
             $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        $product = new ProductModel();
+        $product = new LevelModel();
         $product
-            ->setUuid($context->getDatabase()->guidV4())
             ->setDisplayName($form['display_name'])
-            ->setCostValue(intval($form["cost_value"]))
-            ->setSellValue(intval($form["sell_value"]))
-            ->setRemainAmount(intval($form["remain_amount"]))
             ->create($context->getDatabase());
         if ($product->reload($context->getDatabase())->checkReady()) {
             $context->getResponse()->setStatus(201)->send();
@@ -73,11 +64,11 @@ final class Product implements ControllerInterface
             $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
             return;
         }
-        if (empty($uuid = $context->getRequest()->getQuery("uuid"))) {
+        if (empty($id = $context->getRequest()->getQuery("id"))) {
             $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        (new ProductModel())->setUuid($uuid)->destroy($context->getDatabase());
+        (new LevelModel())->setId($id)->destroy($context->getDatabase());
         $context->getResponse()->setStatus(204)->sendJSON();
     }
 }

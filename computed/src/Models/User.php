@@ -2,6 +2,7 @@
 
 namespace Slim\Models;
 
+use PDO;
 use Slim\Kernel\Database;
 use TypeError;
 
@@ -22,6 +23,23 @@ class User extends ModelBase implements ModelInterface
     public function checkReady(): bool
     {
         return isset($this->uuid);
+    }
+
+    public static function batch(Database $db_instance): array
+    {
+        $sql = "
+            SELECT `uuid`, `username`, `password`, `level`, `display_name`, `created_time`, `address`, `email`, `phone`
+            FROM `users`
+            ORDER BY `display_name` DESC
+        ";
+        $stmt = $db_instance->getClient()->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map(function (array $item) {
+            $user = new static();
+            $user->fromArray($item);
+            return $user;
+        }, $result);
     }
 
     public function load(Database $db_instance, $filter): ModelInterface
@@ -60,7 +78,7 @@ class User extends ModelBase implements ModelInterface
 
     public function replace(Database $db_instance): bool
     {
-        $sql = "UPDATE `users` SET `username` = :username, `password` = :password, `level` = :level, `display_name` = :display_name, `created_time` = :created_time, `address` = :address, `email` = :email, `phone` = :phone WHERE  `uuid` = :uuid";
+        $sql = "UPDATE `users` SET `username` = :username, `password` = :password, `level` = :level, `display_name` = :display_name, `address` = :address, `email` = :email, `phone` = :phone WHERE  `uuid` = :uuid";
         $stmt = $db_instance->getClient()->prepare($sql);
         $db_instance->bindParamsFilled($stmt, $this->toArray());
         return $stmt->execute();
@@ -79,6 +97,16 @@ class User extends ModelBase implements ModelInterface
     public function getUuid(): string
     {
         return $this->uuid;
+    }
+
+    /**
+     * @param string $uuid
+     * @return User
+     */
+    public function setUuid(string $uuid): static
+    {
+        $this->uuid = $uuid;
+        return $this;
     }
 
     /**
@@ -102,11 +130,68 @@ class User extends ModelBase implements ModelInterface
     }
 
     /**
+     * @param int $level
+     * @return User
+     */
+    public function setLevel(int $level): static
+    {
+        $this->level = $level;
+        return $this;
+    }
+
+    /**
+     * @param string $display_name
+     * @return User
+     */
+    public function setDisplayName(string $display_name): static
+    {
+        $this->display_name = $display_name;
+        return $this;
+    }
+
+    /**
+     * @param string $address
+     * @return User
+     */
+    public function setAddress(string $address): static
+    {
+        $this->address = $address;
+        return $this;
+    }
+
+    /**
+     * @param string $email
+     * @return User
+     */
+    public function setEmail(string $email): static
+    {
+        $this->email = $email;
+        return $this;
+    }
+
+    /**
+     * @param string $phone
+     * @return User
+     */
+    public function setPhone(string $phone): static
+    {
+        $this->phone = $phone;
+        return $this;
+    }
+
+    /**
      * @return User
      */
     public function hashPassword(): static
     {
         $this->password = hash("sha256", $this->password);
         return $this;
+    }
+
+    public function jsonSerialize(): ?array
+    {
+        $result = $this->toArray();
+        unset($result["password"]);
+        return !empty($result) ? $result : null;
     }
 }

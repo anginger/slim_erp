@@ -3,6 +3,7 @@ declare (strict_types=1);
 
 namespace Slim\Models;
 
+use PDO;
 use Slim\Kernel\Database;
 use TypeError;
 
@@ -19,6 +20,23 @@ class Product extends ModelBase implements ModelInterface
     public function checkReady(): bool
     {
         return isset($this->uuid);
+    }
+
+    public static function batch(Database $db_instance): array
+    {
+        $sql = "
+            SELECT `uuid`, `display_name`, `cost_value`, `sell_value`, `remain_amount`
+            FROM `products`
+            ORDER BY `display_name` DESC
+        ";
+        $stmt = $db_instance->getClient()->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map(function (array $item) {
+            $product = new static();
+            $product->fromArray($item);
+            return $product;
+        }, $result);
     }
 
     public function load(Database $db_instance, $filter): ModelInterface
@@ -59,5 +77,55 @@ class Product extends ModelBase implements ModelInterface
         $sql = "DELETE FROM `products` WHERE `uuid` = ?";
         $stmt = $db_instance->getClient()->prepare($sql);
         return $stmt->execute([$this->uuid]);
+    }
+
+    /**
+     * @param string $uuid
+     * @return Product
+     */
+    public function setUuid(string $uuid): static
+    {
+        $this->uuid = $uuid;
+        return $this;
+    }
+
+    /**
+     * @param string $display_name
+     * @return Product
+     */
+    public function setDisplayName(string $display_name): static
+    {
+        $this->display_name = $display_name;
+        return $this;
+    }
+
+    /**
+     * @param int $cost_value
+     * @return Product
+     */
+    public function setCostValue(int $cost_value): static
+    {
+        $this->cost_value = $cost_value;
+        return $this;
+    }
+
+    /**
+     * @param int $sell_value
+     * @return Product
+     */
+    public function setSellValue(int $sell_value): static
+    {
+        $this->sell_value = $sell_value;
+        return $this;
+    }
+
+    /**
+     * @param int $remain_amount
+     * @return Product
+     */
+    public function setRemainAmount(int $remain_amount): static
+    {
+        $this->remain_amount = $remain_amount;
+        return $this;
     }
 }

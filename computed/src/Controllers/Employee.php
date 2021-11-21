@@ -6,7 +6,7 @@ namespace Slim\Controllers;
 use Slim\Kernel\Context;
 use Slim\Models\User;
 
-final class Employee
+final class Employee implements ControllerInterface
 {
     public function getUsers(Context $context): void
     {

@@ -1,20 +1,66 @@
 <?php
+declare (strict_types=1);
 
 namespace Slim\Kernel;
+
+use Slim\Controllers\ControllerInterface;
+use Slim\Middlewares\MiddlewareInterface;
+use TypeError;
 
 class Router
 {
     private Context $context;
     private array $routes = [];
-    private object $controller;
+    private array $middlewares_before = [];
+    private array $middlewares_after = [];
+    private ControllerInterface $controller;
 
     public function __construct(
-        string        $class,
+        public string $class,
         public string $root_path = "/",
     )
     {
         $this->context = new Context();
         $this->controller = new $class();
+    }
+
+    public function getContext(): Context
+    {
+        return $this->context;
+    }
+
+    public function addMiddleware(bool $type, string $controller): static
+    {
+        $instance = new $controller();
+        if (!($instance instanceof MiddlewareInterface)) {
+            throw new TypeError();
+        }
+        if ($type) {
+            $this->middlewares_before[$controller] = $instance;
+        } else {
+            $this->middlewares_after[$controller] = $instance;
+        }
+        return $this;
+    }
+
+    public function deleteMiddleware(bool $type, string $controller): static
+    {
+        if ($type) {
+            unset($this->middlewares_before[$controller]);
+        } else {
+            unset($this->middlewares_after[$controller]);
+        }
+        return $this;
+    }
+
+    private function executeMiddleware(bool $type, Context $context): void
+    {
+        $middlewares = $type ? $this->middlewares_before : $this->middlewares_after;
+        foreach ($middlewares as $middleware) {
+            if (is_null($middleware)) continue;
+            assert($middleware instanceof MiddlewareInterface);
+            $middleware::toUse($context);
+        }
     }
 
     /**
@@ -23,7 +69,7 @@ class Router
      * @param string|callable $method
      * @return Router
      */
-    public function register(string $http_method, string $path, string|callable $method): self
+    public function register(string $http_method, string $path, string|callable $method): static
     {
         $path = !str_starts_with($path, "/") ? "/$path" : $path;
         $path = $this->root_path === "/" ? $path : $this->root_path . $path;
@@ -44,13 +90,13 @@ class Router
             if (!array_key_exists($http_path, $this->routes)) return null;
             if (!array_key_exists($http_method, $this->routes[$http_path])) return null;
             // Do middlewares
-            // ToDo: call middlewares_before
+            $this->executeMiddleware(false, $this->getContext());
             // Main
             $method_name = $this->routes[$http_path][$http_method];
             if (!method_exists($this->controller, $method_name)) return false;
-            $this->controller->$method_name($this->context);
+            $this->controller->$method_name($this->getContext());
             // Do middlewares
-            // ToDo: call middlewares_after
+            $this->executeMiddleware(true, $this->getContext());
             return true;
         };
         if (($status = $main()) === null) {
@@ -58,10 +104,5 @@ class Router
         } else if ($status === false) {
             $this->getContext()->getResponse()->setStatus(500)->setBody(null)->sendJSON();
         }
-    }
-
-    public function getContext(): Context
-    {
-        return $this->context;
     }
 }

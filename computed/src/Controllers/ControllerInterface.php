@@ -3,11 +3,8 @@
 // (c)2021 SuperSonic(https://randychen.tk)
 declare (strict_types=1);
 
-namespace Slim\Kernel;
+namespace Slim\Controllers;
 
-use Exception;
-
-class DuplicateResultException extends Exception
+interface ControllerInterface
 {
-
 }

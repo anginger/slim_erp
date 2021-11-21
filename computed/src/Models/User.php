@@ -37,6 +37,15 @@ class User extends ModelBase implements ModelInterface
         return $this;
     }
 
+    public function loadFromUsernameAndPassword(Database $db_instance): ModelInterface
+    {
+        $sql = "SELECT `uuid`, `username`, `password`, `level`, `display_name`, `created_time`, `address`, `email`, `phone` FROM `users` WHERE `username` = ? AND `password` = ?";
+        $stmt = $db_instance->getClient()->prepare($sql);
+        $stmt->execute([$this->username, $this->password]);
+        $this->loadResult($this, $stmt);
+        return $this;
+    }
+
     public function reload(Database $db_instance): ModelInterface
     {
         return $this->load($db_instance, $this->uuid);
@@ -63,5 +72,34 @@ class User extends ModelBase implements ModelInterface
         $sql = "DELETE FROM `users` WHERE `uuid` = ?";
         $stmt = $db_instance->getClient()->prepare($sql);
         return $stmt->execute([$this->uuid]);
+    }
+
+    /**
+     * @param string $username
+     * @return User
+     */
+    public function setUsername(string $username): static
+    {
+        $this->username = $username;
+        return $this;
+    }
+
+    /**
+     * @param string $password
+     * @return User
+     */
+    public function setPassword(string $password): static
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    /**
+     * @return User
+     */
+    public function hashPassword(): static
+    {
+        $this->password = hash("sha256", $this->password);
+        return $this;
     }
 }

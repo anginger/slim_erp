@@ -6,7 +6,7 @@ namespace Slim\Kernel;
 
 use Exception;
 
-class DuplicateResultException extends Exception
+class UnknownResultTypException extends Exception
 {
 
 }

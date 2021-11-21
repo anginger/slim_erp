@@ -1,5 +1,4 @@
 <?php
-declare (strict_types=1);
 
 namespace Slim\Kernel;
 
@@ -80,13 +79,12 @@ class Router
         return $this;
     }
 
-    public function run(): void
+    public function run(bool $single_controller = false): void
     {
         $main = function (): ?bool {
             $http_method = $this->getContext()->getRequest()->getMethod();
             $http_path = parse_url($this->getContext()->getRequest()->getRequestUri(), PHP_URL_PATH);
             $http_path = !str_starts_with($http_path, "/") ? "/$http_path" : $http_path;
-            $http_path = $this->root_path === "/" ? $http_path : $this->root_path . $http_path;
             if (!array_key_exists($http_path, $this->routes)) return null;
             if (!array_key_exists($http_method, $this->routes[$http_path])) return null;
             // Do middlewares
@@ -99,10 +97,13 @@ class Router
             $this->executeMiddleware(true, $this->getContext());
             return true;
         };
-        if (($status = $main()) === null) {
-            $this->getContext()->getResponse()->setStatus(404)->setBody(null)->sendJSON();
-        } else if ($status === false) {
-            $this->getContext()->getResponse()->setStatus(500)->setBody(null)->sendJSON();
+        $status = $main();
+        if ($single_controller) {
+            if ($status === null) {
+                $this->getContext()->getResponse()->setStatus(404)->setBody(null)->sendJSON();
+            } else if ($status === false) {
+                $this->getContext()->getResponse()->setStatus(500)->setBody(null)->sendJSON();
+            }
         }
     }
 }

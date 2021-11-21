@@ -18,9 +18,14 @@
                   {{ item.remain_amount }}
                 </v-list-item-subtitle>
               </v-list-item-content>
-              <v-list-item-action>
-                <v-btn depressed>
-                  <v-icon>mdi-pen-outline</v-icon>
+              <v-list-item-action v-show="modify">
+                <v-btn class="amber darken-1 white--text" rounded depressed>
+                  <v-icon>mdi-pencil-outline</v-icon>
+                </v-btn>
+              </v-list-item-action>
+              <v-list-item-action v-show="modify">
+                <v-btn class="red darken-1 white--text" rounded depressed>
+                  <v-icon>mdi-trash-can-outline</v-icon>
                 </v-btn>
               </v-list-item-action>
             </v-list-item>
@@ -28,17 +33,20 @@
         </item-list>
       </v-card>
     </v-container>
+    <modify-drawer @view="modify=false" @modify="modify=true"/>
   </v-card>
 </template>
 
 <script>
 import ItemList from "@/components/ItemList";
+import ModifyDrawer from "@/components/ModifyDrawer";
 
 export default {
   name: "Products",
-  components: {ItemList},
+  components: {ModifyDrawer, ItemList},
   data: () => ({
     loaded: false,
+    modify: false,
     dataset: []
   }),
   created() {

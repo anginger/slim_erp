@@ -43,7 +43,7 @@
 <script>
 import Profile from "@/components/Layout/Profile";
 export default {
-  name: "OuterNavDrawer",
+  name: "NavDrawer",
   components: {Profile},
   data: () => ({
     drawer: null,

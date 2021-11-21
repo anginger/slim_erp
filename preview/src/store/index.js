@@ -7,7 +7,6 @@ export default new Vuex.Store({
   state: {
     loaded: false,
     ready: false,
-    modifiable: false,
     user: null
   },
   mutations: {
@@ -16,9 +15,6 @@ export default new Vuex.Store({
     },
     setReady(state, status) {
       state.ready = status
-    },
-    setModifiable(state, status) {
-      state.modifiable = status
     },
     setUser(state, user) {
       state.user = user

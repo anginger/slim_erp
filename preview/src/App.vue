@@ -5,7 +5,6 @@
     <div v-else>
       <app-bar/>
       <outer-nav-drawer/>
-      <inner-nav-drawer v-if="$store.state.modifiable"/>
       <v-main>
         <router-view/>
       </v-main>
@@ -16,14 +15,13 @@
 
 <script>
 import AppBar from "./components/Layout/AppBar";
-import InnerNavDrawer from "./components/Layout/InnerNavDrawer";
-import OuterNavDrawer from "./components/Layout/OuterNavDrawer";
+import OuterNavDrawer from "./components/Layout/NavDrawer";
 import AppFooter from "./components/Layout/AppFooter";
 import Login from "./components/Login";
 import Loading from "./components/Loading";
 
 export default {
-  components: {Loading, Login, AppFooter, OuterNavDrawer, InnerNavDrawer, AppBar},
+  components: {Loading, Login, AppFooter, OuterNavDrawer, AppBar},
   methods: {
     async checkStatus() {
       try {

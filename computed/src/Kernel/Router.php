@@ -70,7 +70,7 @@ class Router
      */
     public function register(string $http_method, string $path, string|callable $method): static
     {
-        $path = !str_starts_with($path, "/") ? "/$path" : $path;
+        $path = !empty($path) && !str_starts_with($path, "/") ? "/$path" : $path;
         $path = $this->root_path === "/" ? $path : $this->root_path . $path;
         if (!array_key_exists($path, $this->routes)) {
             $this->routes[$path] = [];

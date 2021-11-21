@@ -77,6 +77,6 @@ final class Provider implements ControllerInterface
             return;
         }
         (new ProviderModel())->setId($id)->destroy($context->getDatabase());
-        $context->getResponse()->setStatus(204)->sendJSON();
+        $context->getResponse()->setStatus(204)->send();
     }
 }

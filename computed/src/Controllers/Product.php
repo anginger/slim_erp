@@ -78,6 +78,6 @@ final class Product implements ControllerInterface
             return;
         }
         (new ProductModel())->setUuid($uuid)->destroy($context->getDatabase());
-        $context->getResponse()->setStatus(204)->sendJSON();
+        $context->getResponse()->setStatus(204)->send();
     }
 }

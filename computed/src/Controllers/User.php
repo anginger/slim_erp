@@ -45,7 +45,7 @@ final class User implements ControllerInterface
         if (
             !isset($form['username']) ||
             !isset($form["password"]) ||
-            !isset($form["sell_value"]) ||
+            !isset($form["level"]) ||
             !isset($form["display_name"]) ||
             !isset($form["address"]) ||
             !isset($form["email"]) ||
@@ -59,7 +59,7 @@ final class User implements ControllerInterface
             ->setUuid($context->getDatabase()->guidV4())
             ->setUsername($form["username"])
             ->setPassword($form["password"])
-            ->setLevel(intval($form["sell_value"]))
+            ->setLevel(intval($form["level"]))
             ->setDisplayName($form['display_name'])
             ->setAddress($form["address"])
             ->setEmail($form["email"])
@@ -84,6 +84,6 @@ final class User implements ControllerInterface
             return;
         }
         (new UserModel())->setUuid($uuid)->destroy($context->getDatabase());
-        $context->getResponse()->setStatus(204)->sendJSON();
+        $context->getResponse()->setStatus(204)->send();
     }
 }

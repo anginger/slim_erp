@@ -69,6 +69,6 @@ final class Level implements ControllerInterface
             return;
         }
         (new LevelModel())->setId($id)->destroy($context->getDatabase());
-        $context->getResponse()->setStatus(204)->sendJSON();
+        $context->getResponse()->setStatus(204)->send();
     }
 }

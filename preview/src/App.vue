@@ -1,81 +1,126 @@
 <template>
-  <div id="app">
-    <div>
-      長方形1：
-      <label>寬：</label>
-      <input type="text" v-model="retangle1.width"/>
-      <label>高：</label>
-      <input type="text" v-model="retangle1.height"/>
-    </div>
-    <div>
-      長方形2：
-      <label>寬：</label>
-      <input type="text" v-model="retangle2.width"/>
-      <label>高：</label>
-      <input type="text" v-model="retangle2.height"/>
-    </div>
-    <div>
-      <button @click="submit">計算</button>
-    </div>
-    <div>
-      retangle1的面積：{{ retangle1.area }}<br/>
-      retangle1的周長：{{ retangle1.perimeter }}<br/>
-      retangle2的面積：{{ retangle2.area }}<br/>
-      retangle2的周長：{{ retangle2.perimeter }}
-    </div>
-  </div>
+  <v-app id="inspire">
+    <v-system-bar app>
+      <v-spacer></v-spacer>
+
+      <v-icon>mdi-square</v-icon>
+
+      <v-icon>mdi-circle</v-icon>
+
+      <v-icon>mdi-triangle</v-icon>
+    </v-system-bar>
+
+    <v-app-bar
+        app
+        clipped-right
+        flat
+        height="72"
+    >
+      <v-spacer></v-spacer>
+
+      <v-responsive max-width="156">
+        <v-text-field
+            dense
+            flat
+            hide-details
+            rounded
+            solo-inverted
+        ></v-text-field>
+      </v-responsive>
+    </v-app-bar>
+
+    <v-navigation-drawer
+        v-model="drawer"
+        app
+        width="300"
+    >
+      <v-navigation-drawer
+          v-model="drawer"
+          absolute
+          color="grey lighten-3"
+          mini-variant
+      >
+        <v-avatar
+            class="d-block text-center mx-auto mt-4"
+            color="grey darken-1"
+            size="36"
+        ></v-avatar>
+
+        <v-divider class="mx-3 my-5"></v-divider>
+
+        <v-avatar
+            v-for="n in 6"
+            :key="n"
+            class="d-block text-center mx-auto mb-9"
+            color="grey lighten-1"
+            size="28"
+        ></v-avatar>
+      </v-navigation-drawer>
+
+      <v-sheet
+          color="grey lighten-5"
+          height="128"
+          width="100%"
+      ></v-sheet>
+
+      <v-list
+          class="pl-14"
+          shaped
+      >
+        <v-list-item
+            v-for="n in 5"
+            :key="n"
+            link
+        >
+          <v-list-item-content>
+            <v-list-item-title>Item {{ n }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-navigation-drawer
+        app
+        clipped
+        right
+    >
+      <v-list>
+        <v-list-item
+            v-for="n in 5"
+            :key="n"
+            link
+        >
+          <v-list-item-content>
+            <v-list-item-title>Item {{ n }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <v-main>
+      <!--  -->
+    </v-main>
+
+    <v-footer
+        app
+        color="transparent"
+        height="72"
+        inset
+    >
+      <v-text-field
+          background-color="grey lighten-1"
+          dense
+          flat
+          hide-details
+          rounded
+          solo
+      ></v-text-field>
+    </v-footer>
+  </v-app>
 </template>
 
 <script>
 export default {
-  name: "App",
-  data: () => ({
-    retangle1: {
-      width: 0,
-      height: 0,
-      area: 0,
-      perimeter: 0,
-    },
-    retangle2: {
-      width: 0,
-      height: 0,
-      area: 0,
-      perimeter: 0,
-    },
-  }),
-  methods: {
-    request(retangle) {
-      return this.$axios.get(`http://localhost:1808/`, {params: retangle});
-    },
-    submit() {
-      this.request(this.retangle1)
-          .then((response) => {
-            this.retangle1.area = response.data.area;
-            this.retangle1.perimeter = response.data.perimeter;
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      this.request(this.retangle2)
-          .then((response) => {
-            this.retangle2.area = response.data.area;
-            this.retangle2.perimeter = response.data.perimeter;
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-    },
-  },
-};
-</script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  data: () => ({ drawer: null }),
 }
-</style>
+</script>

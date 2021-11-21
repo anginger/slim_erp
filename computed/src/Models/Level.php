@@ -6,27 +6,24 @@ namespace Slim\Models;
 use Slim\Kernel\Database;
 use TypeError;
 
-class Product extends ModelBase implements ModelInterface
+class Level extends ModelBase implements ModelInterface
 {
-    public string $uuid;
+    public int $_id;
     public string $display_name;
-    public int $cost_value;
-    public int $sell_value;
-    public int $remain_amount;
 
     use ModelUtils;
 
     public function checkReady(): bool
     {
-        return isset($this->uuid);
+        return isset($this->_id);
     }
 
     public function load(Database $db_instance, $filter): ModelInterface
     {
-        if (!is_string($filter)) {
+        if (!is_int($filter)) {
             throw new TypeError();
         }
-        $sql = "SELECT `uuid`, `display_name`, `cost_value`, `sell_value`, `remain_amount` FROM `products` WHERE `uuid` = ?";
+        $sql = "SELECT `_id`, `display_name` FROM `levels` WHERE `_id` = ?";
         $stmt = $db_instance->getClient()->prepare($sql);
         $stmt->execute([$filter]);
         $this->loadResult($this, $stmt);
@@ -35,12 +32,12 @@ class Product extends ModelBase implements ModelInterface
 
     public function reload(Database $db_instance): ModelInterface
     {
-        return $this->load($db_instance, $this->uuid);
+        return $this->load($db_instance, $this->_id);
     }
 
     public function create(Database $db_instance): bool
     {
-        $sql = "INSERT INTO `products`(`uuid`, `display_name`, `cost_value`, `sell_value`, `remain_amount`) VALUES (:uuid, :display_name, :cost_value, :sell_value, :remain_amount)";
+        $sql = "INSERT INTO `levels`(`_id`, `display_name`) VALUES (:_id, :display_name)";
         $stmt = $db_instance->getClient()->prepare($sql);
         $db_instance->bindParamsFilled($stmt, $this->toArray());
         return $stmt->execute();
@@ -48,7 +45,7 @@ class Product extends ModelBase implements ModelInterface
 
     public function replace(Database $db_instance): bool
     {
-        $sql = "UPDATE `products` SET `display_name` = :display_name, `cost_value` = :cost_value, `sell_value` = :sell_value, `remain_amount` = :remain_amount WHERE  `uuid` = :uuid";
+        $sql = "UPDATE `levels` SET `display_name` = :display_name WHERE `_id` = :id";
         $stmt = $db_instance->getClient()->prepare($sql);
         $db_instance->bindParamsFilled($stmt, $this->toArray());
         return $stmt->execute();
@@ -56,8 +53,8 @@ class Product extends ModelBase implements ModelInterface
 
     public function destroy(Database $db_instance): bool
     {
-        $sql = "DELETE FROM `products` WHERE `uuid` = ?";
+        $sql = "DELETE FROM `levels` WHERE `_id` = ?";
         $stmt = $db_instance->getClient()->prepare($sql);
-        return $stmt->execute([$this->uuid]);
+        return $stmt->execute([$this->_id]);
     }
 }

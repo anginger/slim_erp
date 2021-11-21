@@ -3,94 +3,65 @@ declare (strict_types=1);
 
 namespace Slim\Models;
 
-use Exception;
 use Slim\Kernel\Database;
+use TypeError;
 
-class User extends ORMBase implements DatabaseInterface
+class User extends ModelBase implements ModelInterface
 {
     public string $uuid;
+    public string $username;
     public string $password;
+    public int $level;
     public string $display_name;
+    public int $created_time;
+    public string $address;
     public string $email;
     public string $phone;
 
-    public function __construct()
+    use ModelUtils;
+
+    public function checkReady(): bool
     {
-        parent::__construct("uuid");
+        return isset($this->uuid);
+    }
+
+    public function load(Database $db_instance, $filter): ModelInterface
+    {
+        if (!is_string($filter)) {
+            throw new TypeError();
+        }
+        $sql = "SELECT `uuid`, `username`, `password`, `level`, `display_name`, `created_time`, `address`, `email`, `phone` FROM `users` WHERE `uuid` = ?";
+        $stmt = $db_instance->getClient()->prepare($sql);
+        $stmt->execute([$filter]);
+        $this->loadResult($this, $stmt);
+        return $this;
+    }
+
+    public function reload(Database $db_instance): ModelInterface
+    {
+        return $this->load($db_instance, $this->uuid);
     }
 
     public function create(Database $db_instance): bool
     {
-        $this->uuid = $db_instance->guidV4();
-        if (!isset($this->display_name)) {
-            throw new Exception();
-        }
-        if (!str_starts_with("\00.", $this->password)) {
-            throw new Exception();
-        }
-        return parent::create($db_instance);
-    }
-
-    public function validPassword(string $password): bool
-    {
-        if (!str_starts_with("\00.", $this->password)) {
-            throw new Exception();
-        }
-        return password_verify($password, $this->password);
-    }
-
-    public function hashPassword(): static
-    {
-        $secret = password_hash($this->password, PASSWORD_BCRYPT);
-        $this->password = "\00.$secret";
-        return $this;
-    }
-
-    /**
-     * @param string $uuid
-     * @return User
-     */
-    public function setUuid(string $uuid): static
-    {
-        $this->uuid = $uuid;
-        return $this;
-    }
-
-    public function setDisplayName(string $display_name): static
-    {
-        $this->display_name = $display_name;
-        return $this;
-    }
-
-    public function setPassword(string $password): static
-    {
-        $this->password = $password;
-        return $this;
-    }
-
-    public function setEmail(string $email): static
-    {
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->email = $email;
-        }
-        return $this;
-    }
-
-    public function setPhone(string $phone): static
-    {
-        $this->phone = $phone;
-        return $this;
-    }
-
-    public function all(Database $db_instance): array
-    {
-        $props = implode(", ", $this->props);
-        $sql = "SELECT $props FROM `$this->clazz`";
+        $sql = "INSERT INTO `users` (`uuid`, `username`, `password`, `level`, `display_name`, `created_time`, `address`, `email`, `phone`) VALUES (:uuid, :username, :password, :level, :display_name, UNIX_TIMESTAMP(), :address, :email, :phone)";
         $stmt = $db_instance->getClient()->prepare($sql);
-        $stmt->execute();
-        return array_map(
-            fn($result) => (new User())->fromArray($result),
-            $stmt->fetchAll()
-        );
+        $db_instance->bindParamsFilled($stmt, $this->toArray());
+        return $stmt->execute();
+    }
+
+    public function replace(Database $db_instance): bool
+    {
+        $sql = "UPDATE `users` SET `username` = :username, `password` = :password, `level` = :level, `display_name` = :display_name, `created_time` = :created_time, `address` = :address, `email` = :email, `phone` = :phone WHERE  `uuid` = :uuid";
+        $stmt = $db_instance->getClient()->prepare($sql);
+        $db_instance->bindParamsFilled($stmt, $this->toArray());
+        return $stmt->execute();
+    }
+
+    public function destroy(Database $db_instance): bool
+    {
+        $sql = "DELETE FROM `users` WHERE `uuid` = ?";
+        $stmt = $db_instance->getClient()->prepare($sql);
+        return $stmt->execute([$this->uuid]);
     }
 }

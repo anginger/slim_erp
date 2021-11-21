@@ -32,13 +32,13 @@
       </v-card-actions>
       <div v-else>
         <v-card-text>
-          <v-text-field label="帳號" type="text"/>
-          <v-text-field label="密碼" type="password"/>
+          <v-text-field v-model="username" label="帳號" @keydown.enter="$refs.password.focus" type="text"/>
+          <v-text-field v-model="password" label="密碼" ref="password" @keydown.enter="submit" type="password"/>
         </v-card-text>
         <v-card-actions>
-          <v-btn @click="id_login = false" depressed>取消</v-btn>
+          <v-btn :disabled="loading" @click="id_login = false" depressed>取消</v-btn>
           <v-spacer/>
-          <v-btn class="secondary" depressed>登入</v-btn>
+          <v-btn :loading="loading" @click="submit" class="secondary" depressed>登入</v-btn>
         </v-card-actions>
       </div>
     </v-card>
@@ -49,7 +49,25 @@
 export default {
   name: "Login",
   data: () => ({
-    id_login: false
-  })
+    loading: false,
+    id_login: false,
+    username: null,
+    password: null,
+  }),
+  methods: {
+    async submit() {
+      this.loading = true;
+      try {
+        const form = new URLSearchParams();
+        form.set("username", this.username);
+        form.set("password", this.password);
+        const response = await this.$axios.post("/authentic/session", form)
+        if (response.status === 201) this.$emit("success")
+      } catch (e) {
+        console.warn(e)
+      }
+      this.loading = false;
+    }
+  }
 }
 </script>

@@ -14,8 +14,8 @@ final class Level implements ControllerInterface
             $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
             return;
         }
-        $products = (new LevelModel())->batch($context->getDatabase());
-        $context->getResponse()->setBody($products)->sendJSON();
+        $levels = (new LevelModel())->batch($context->getDatabase());
+        $context->getResponse()->setBody($levels)->sendJSON();
     }
 
     public function getOne(Context $context): void
@@ -28,9 +28,9 @@ final class Level implements ControllerInterface
             $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        $product = (new LevelModel())->load($context->getDatabase(), $uuid);
-        if ($product->checkReady()) {
-            $context->getResponse()->setBody($product)->sendJSON();
+        $level = (new LevelModel())->load($context->getDatabase(), $uuid);
+        if ($level->checkReady()) {
+            $context->getResponse()->setBody($level)->sendJSON();
         } else {
             $context->getResponse()->setStatus(404)->setBody(["message" => "not found"])->sendJSON();
         }
@@ -47,11 +47,34 @@ final class Level implements ControllerInterface
             $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        $product = new LevelModel();
-        $product
+        $level = new LevelModel();
+        $level
             ->setDisplayName($form['display_name'])
             ->create($context->getDatabase());
-        if ($product->reload($context->getDatabase())->checkReady()) {
+        if ($level->reload($context->getDatabase())->checkReady()) {
+            $context->getResponse()->setStatus(201)->send();
+        } else {
+            $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();
+        }
+    }
+
+    public function putOne(Context $context): void
+    {
+        if (!($context->getState()->get("user") instanceof User)) {
+            $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
+            return;
+        }
+        $form = $context->getRequest()->read();
+        if (!isset($form['id']) || !isset($form['display_name'])) {
+            $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
+            return;
+        }
+        $level = new LevelModel();
+        $level
+            ->setId(intval($form['id']))
+            ->setDisplayName($form['display_name'])
+            ->replace($context->getDatabase());
+        if ($level->reload($context->getDatabase())->checkReady()) {
             $context->getResponse()->setStatus(201)->send();
         } else {
             $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();

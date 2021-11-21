@@ -14,8 +14,8 @@ final class Provider implements ControllerInterface
             $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
             return;
         }
-        $products = (new ProviderModel())->batch($context->getDatabase());
-        $context->getResponse()->setBody($products)->sendJSON();
+        $providers = (new ProviderModel())->batch($context->getDatabase());
+        $context->getResponse()->setBody($providers)->sendJSON();
     }
 
     public function getOne(Context $context): void
@@ -28,9 +28,9 @@ final class Provider implements ControllerInterface
             $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        $product = (new ProviderModel())->load($context->getDatabase(), $uuid);
-        if ($product->checkReady()) {
-            $context->getResponse()->setBody($product)->sendJSON();
+        $provider = (new ProviderModel())->load($context->getDatabase(), $uuid);
+        if ($provider->checkReady()) {
+            $context->getResponse()->setBody($provider)->sendJSON();
         } else {
             $context->getResponse()->setStatus(404)->setBody(["message" => "not found"])->sendJSON();
         }
@@ -52,14 +52,46 @@ final class Provider implements ControllerInterface
             $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        $product = new ProviderModel();
-        $product
+        $provider = new ProviderModel();
+        $provider
             ->setDisplayName($form['display_name'])
             ->setContactName($form["contact_name"])
             ->setContactPhone($form['contact_phone'])
             ->setContactAddress($form["contact_address"])
             ->create($context->getDatabase());
-        if ($product->reload($context->getDatabase())->checkReady()) {
+        if ($provider->reload($context->getDatabase())->checkReady()) {
+            $context->getResponse()->setStatus(201)->send();
+        } else {
+            $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();
+        }
+    }
+
+    public function putOne(Context $context): void
+    {
+        if (!($context->getState()->get("user") instanceof User)) {
+            $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
+            return;
+        }
+        $form = $context->getRequest()->read();
+        if (
+            !isset($form['id']) ||
+            !isset($form['display_name']) ||
+            !isset($form["contact_name"]) ||
+            !isset($form['contact_phone']) ||
+            !isset($form["contact_address"])
+        ) {
+            $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
+            return;
+        }
+        $provider = new ProviderModel();
+        $provider
+            ->setId(intval($form["id"]))
+            ->setDisplayName($form['display_name'])
+            ->setContactName($form["contact_name"])
+            ->setContactPhone($form['contact_phone'])
+            ->setContactAddress($form["contact_address"])
+            ->replace($context->getDatabase());
+        if ($provider->reload($context->getDatabase())->checkReady()) {
             $context->getResponse()->setStatus(201)->send();
         } else {
             $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();

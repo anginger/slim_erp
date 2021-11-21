@@ -67,6 +67,38 @@ final class Product implements ControllerInterface
         }
     }
 
+    public function putOne(Context $context): void
+    {
+        if (!($context->getState()->get("user") instanceof User)) {
+            $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
+            return;
+        }
+        $form = $context->getRequest()->read();
+        if (
+            !isset($form['uuid']) ||
+            !isset($form['display_name']) ||
+            !isset($form["cost_value"]) ||
+            !isset($form['sell_value']) ||
+            !isset($form["remain_amount"])
+        ) {
+            $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
+            return;
+        }
+        $product = new ProductModel();
+        $product
+            ->setUuid($form['uuid'])
+            ->setDisplayName($form['display_name'])
+            ->setCostValue(intval($form["cost_value"]))
+            ->setSellValue(intval($form["sell_value"]))
+            ->setRemainAmount(intval($form["remain_amount"]))
+            ->replace($context->getDatabase());
+        if ($product->reload($context->getDatabase())->checkReady()) {
+            $context->getResponse()->setStatus(201)->send();
+        } else {
+            $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();
+        }
+    }
+
     public function deleteOne(Context $context): void
     {
         if (!($context->getState()->get("user") instanceof User)) {

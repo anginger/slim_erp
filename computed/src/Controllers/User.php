@@ -13,8 +13,8 @@ final class User implements ControllerInterface
             $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
             return;
         }
-        $products = (new UserModel())->batch($context->getDatabase());
-        $context->getResponse()->setBody($products)->sendJSON();
+        $users = (new UserModel())->batch($context->getDatabase());
+        $context->getResponse()->setBody($users)->sendJSON();
     }
 
     public function getOne(Context $context): void
@@ -27,9 +27,9 @@ final class User implements ControllerInterface
             $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        $product = (new UserModel())->load($context->getDatabase(), $uuid);
-        if ($product->checkReady()) {
-            $context->getResponse()->setBody($product)->sendJSON();
+        $user = (new UserModel())->load($context->getDatabase(), $uuid);
+        if ($user->checkReady()) {
+            $context->getResponse()->setBody($user)->sendJSON();
         } else {
             $context->getResponse()->setStatus(404)->setBody(["message" => "not found"])->sendJSON();
         }
@@ -54,8 +54,8 @@ final class User implements ControllerInterface
             $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
-        $product = new UserModel();
-        $product
+        $user = new UserModel();
+        $user
             ->setUuid($context->getDatabase()->guidV4())
             ->setUsername($form["username"])
             ->setPassword($form["password"])
@@ -66,7 +66,48 @@ final class User implements ControllerInterface
             ->setPhone($form["phone"])
             ->hashPassword()
             ->create($context->getDatabase());
-        if ($product->reload($context->getDatabase())->checkReady()) {
+        if ($user->reload($context->getDatabase())->checkReady()) {
+            $context->getResponse()->setStatus(201)->send();
+        } else {
+            $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();
+        }
+    }
+
+    public function putOne(Context $context): void
+    {
+        if (!($context->getState()->get("user") instanceof UserModel)) {
+            $context->getResponse()->setStatus(403)->setBody(["message" => "forbidden"])->sendJSON();
+            return;
+        }
+        $form = $context->getRequest()->read();
+        if (
+            !isset($form['uuid']) ||
+            !isset($form['username']) ||
+            !isset($form["password"]) ||
+            !isset($form["level"]) ||
+            !isset($form["display_name"]) ||
+            !isset($form["address"]) ||
+            !isset($form["email"]) ||
+            !isset($form["phone"])
+        ) {
+            $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
+            return;
+        }
+        $user = new UserModel();
+        $user
+            ->setUuid($form["uuid"])
+            ->setUsername($form["username"])
+            ->setLevel(intval($form["level"]))
+            ->setDisplayName($form['display_name'])
+            ->setAddress($form["address"])
+            ->setEmail($form["email"])
+            ->setPhone($form["phone"])
+            ->hashPassword();
+        if (!empty($form["password"])) {
+            $user->setPassword($form["password"])->hashPassword();
+        }
+        $user->replace($context->getDatabase());
+        if ($user->reload($context->getDatabase())->checkReady()) {
             $context->getResponse()->setStatus(201)->send();
         } else {
             $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();

@@ -28,6 +28,7 @@ use Slim\Middlewares\Access;
     ->addMiddleware(false, Access::class)
     ->register("GET", "", "getOne")
     ->register("POST", "", "postOne")
+    ->register("PUT", "", "putOne")
     ->register("DELETE", "", "deleteOne")
     ->register("GET", "/all", "getAll")
     ->run();
@@ -36,6 +37,7 @@ use Slim\Middlewares\Access;
     ->addMiddleware(false, Access::class)
     ->register("GET", "", "getOne")
     ->register("POST", "", "postOne")
+    ->register("PUT", "", "putOne")
     ->register("DELETE", "", "deleteOne")
     ->register("GET", "/all", "getAll")
     ->run();
@@ -44,6 +46,7 @@ use Slim\Middlewares\Access;
     ->addMiddleware(false, Access::class)
     ->register("GET", "", "getOne")
     ->register("POST", "", "postOne")
+    ->register("PUT", "", "putOne")
     ->register("DELETE", "", "deleteOne")
     ->register("GET", "/all", "getAll")
     ->run();
@@ -52,6 +55,7 @@ use Slim\Middlewares\Access;
     ->addMiddleware(false, Access::class)
     ->register("GET", "", "getOne")
     ->register("POST", "", "postOne")
+    ->register("PUT", "", "putOne")
     ->register("DELETE", "", "deleteOne")
     ->register("GET", "/all", "getAll")
     ->run();

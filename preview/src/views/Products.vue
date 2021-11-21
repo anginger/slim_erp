@@ -13,7 +13,9 @@
                   {{ item.display_name }}
                 </v-list-item-title>
                 <v-list-item-subtitle>
-                  {{ item.email }}
+                  {{ item.cost_value }}
+                  {{ item.sell_value }}
+                  {{ item.remain_amount }}
                 </v-list-item-subtitle>
               </v-list-item-content>
               <v-list-item-action>

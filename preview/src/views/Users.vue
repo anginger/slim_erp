@@ -56,7 +56,7 @@
         </v-card>
         <v-card v-if="mode === 3" light>
           <v-card-title>編輯員工資料</v-card-title>
-          <v-card-subtitle>Append User</v-card-subtitle>
+          <v-card-subtitle>Modify User</v-card-subtitle>
           <v-card-text>
             <v-form>
               <v-text-field v-model="editing.target.display_name" label="姓名" type="name"/>
@@ -123,7 +123,8 @@ export default {
       this.mode = 1
     },
     modify(item) {
-      this.editing.target = item
+      this.editing.target = {}
+      Object.assign(this.editing.target, item)
       this.mode = 3
     },
     remove(item) {
@@ -159,8 +160,9 @@ export default {
       this.editing.loading = true;
       try {
         const form = this.getParams()
+        form.set("uuid", this.editing.target.uuid)
         const response = await this.$axios.put("/user", form)
-        if (response.status === 200) {
+        if (response.status === 201) {
           this.mode = 0
           this.load()
         }

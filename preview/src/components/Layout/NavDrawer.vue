@@ -85,7 +85,9 @@ export default {
   methods: {
     action(i) {
       if (i.path) {
-        this.$router.push(i.path)
+        if (this.$route.path !== i.path) {
+          this.$router.push(i.path)
+        }
       } else if (i.url) {
         location.assign(i.url)
       } else {

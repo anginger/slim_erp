@@ -10,25 +10,19 @@
         color="black lighten-3"
         mini-variant
     >
-      <v-btn class="white text-center ml-1 my-5" icon>
-        <v-icon>mdi-account-outline</v-icon>
-      </v-btn>
+      <profile/>
       <v-divider class="mx-3 my-5"></v-divider>
       <v-btn
           v-for="i in circles"
           :key="i.title"
           class="white text-center ml-1 mb-9"
           @click="action(i)"
+          :title="i.title"
           icon
       >
         <v-icon v-text="i.icon"/>
       </v-btn>
     </v-navigation-drawer>
-    <v-sheet
-        color="grey lighten-5"
-        height="128"
-        width="100%"
-    ></v-sheet>
     <v-list
         class="pl-14"
         shaped
@@ -47,47 +41,44 @@
 </template>
 
 <script>
+import Profile from "@/components/Layout/Profile";
 export default {
   name: "OuterNavDrawer",
+  components: {Profile},
   data: () => ({
     drawer: null,
     circles: [
       {
-        title: "設定",
+        title: "系統設定",
         icon: "mdi-tune-vertical",
         url: ""
       },
       {
-        title: "關於",
+        title: "關於系統",
         icon: "mdi-information-outline",
         url: ""
-      },
-      {
-        title: "登出",
-        icon: "mdi-exit-to-app",
-        path: "/logout"
       },
     ],
     rectangles: [
       {
         title: "主控台",
-        url: ""
+        path: "/"
       },
       {
         title: "員工資料",
-        url: ""
+        path: "/users"
       },
       {
         title: "產品資料",
-        url: ""
+        path: "/products"
       },
       {
         title: "角色",
-        url: ""
+        path: "/levels"
       },
       {
         title: "供應商",
-        url: ""
+        path: "/providers"
       },
     ]
   }),

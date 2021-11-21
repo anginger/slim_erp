@@ -2,10 +2,10 @@
   <v-container>
     <v-card flat>
       <v-card-title>
-        Slim ERP 登出界面
+        登出 Slim ERP
       </v-card-title>
       <v-card-subtitle>
-        Slim ERP Logout
+        Logout Slim ERP
       </v-card-subtitle>
       <v-card-actions>
         <v-btn :disabled="loading" @click="cancel" depressed>取消</v-btn>

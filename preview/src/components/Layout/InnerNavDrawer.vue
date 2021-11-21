@@ -35,7 +35,3 @@ export default {
   name: "InnerNavDrawer"
 }
 </script>
-
-<style scoped>
-
-</style>

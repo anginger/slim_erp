@@ -1,11 +1,11 @@
 <template>
   <v-app id="inspire">
-    <loading v-if="!loaded"/>
-    <login v-else-if="!ready" @success="loginSuccess"/>
+    <loading v-if="!$store.state.loaded"/>
+    <login v-else-if="!$store.state.ready" @success="loginSuccess"/>
     <div v-else>
       <app-bar/>
       <outer-nav-drawer/>
-      <inner-nav-drawer/>
+      <inner-nav-drawer v-if="$store.state.modifiable"/>
       <v-main>
         <router-view/>
       </v-main>
@@ -24,24 +24,21 @@ import Loading from "./components/Loading";
 
 export default {
   components: {Loading, Login, AppFooter, OuterNavDrawer, InnerNavDrawer, AppBar},
-  data: () => ({
-    loaded: false,
-    ready: false
-  }),
   methods: {
     async checkStatus() {
       try {
         const response = await this.$axios.get("/authentic/session")
-        this.ready = response.status === 204
+        this.$store.commit("setReady", response.status === 200)
+        this.$store.commit("setUser", response.data)
       } catch (e) {
         console.warn(e)
       }
       setTimeout(() => {
-        this.loaded = true;
+        this.$store.commit("setLoaded", true)
       }, 3000)
     },
     loginSuccess() {
-      this.loaded = false
+      this.$store.commit("setLoaded", false)
       this.checkStatus()
     }
   },

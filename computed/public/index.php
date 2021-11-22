@@ -16,13 +16,13 @@ use Slim\Middlewares\Access;
     ->register("GET", "/session", "getSession")
     ->register("POST", "/session", "postSession")
     ->register("DELETE", "/session", "deleteSession")
-    ->run();
+    ->channel();
 
 (new Router(History::class, "/history"))
     ->addMiddleware(false, Access::class)
     ->register("GET", "", "getOne")
     ->register("GET", "/all", "getAll")
-    ->run();
+    ->channel();
 
 (new Router(User::class, "/user"))
     ->addMiddleware(false, Access::class)
@@ -31,7 +31,7 @@ use Slim\Middlewares\Access;
     ->register("PUT", "", "putOne")
     ->register("DELETE", "", "deleteOne")
     ->register("GET", "/all", "getAll")
-    ->run();
+    ->channel();
 
 (new Router(Product::class, "/product"))
     ->addMiddleware(false, Access::class)
@@ -40,7 +40,7 @@ use Slim\Middlewares\Access;
     ->register("PUT", "", "putOne")
     ->register("DELETE", "", "deleteOne")
     ->register("GET", "/all", "getAll")
-    ->run();
+    ->channel();
 
 (new Router(Provider::class, "/provider"))
     ->addMiddleware(false, Access::class)
@@ -49,7 +49,7 @@ use Slim\Middlewares\Access;
     ->register("PUT", "", "putOne")
     ->register("DELETE", "", "deleteOne")
     ->register("GET", "/all", "getAll")
-    ->run();
+    ->channel();
 
 (new Router(Level::class, "/level"))
     ->addMiddleware(false, Access::class)
@@ -58,4 +58,6 @@ use Slim\Middlewares\Access;
     ->register("PUT", "", "putOne")
     ->register("DELETE", "", "deleteOne")
     ->register("GET", "/all", "getAll")
-    ->run();
+    ->channel();
+
+Router::run();

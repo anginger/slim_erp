@@ -19,13 +19,31 @@ class Router
         public string $root_path = "/",
     )
     {
-        $this->context = new Context();
+        self::initRouterBridge();
         $this->controller = new $class();
     }
 
-    public function getContext(): Context
+    private static function initRouterBridge(): void
     {
-        return $this->context;
+        global $__JUSTIN_FRAMEWORK_ROUTER_BRIDGE;
+        if (!isset($__JUSTIN_FRAMEWORK_ROUTER_BRIDGE)) {
+            $__JUSTIN_FRAMEWORK_ROUTER_BRIDGE = [
+                "version" => "1.0",
+                "channels" => []
+            ];
+        }
+    }
+
+    private static function getRouterData(string $key): mixed
+    {
+        global $__JUSTIN_FRAMEWORK_ROUTER_BRIDGE;
+        return $__JUSTIN_FRAMEWORK_ROUTER_BRIDGE[$key] ?? null;
+    }
+
+    private static function setRouterData(string $key, mixed $value): void
+    {
+        global $__JUSTIN_FRAMEWORK_ROUTER_BRIDGE;
+        $__JUSTIN_FRAMEWORK_ROUTER_BRIDGE[$key] = $value;
     }
 
     public function addMiddleware(bool $type, string $controller): static
@@ -79,31 +97,44 @@ class Router
         return $this;
     }
 
-    public function run(bool $single_controller = false): void
+    public function channel(): void
     {
-        $main = function (): ?bool {
-            $http_method = $this->getContext()->getRequest()->getMethod();
-            $http_path = parse_url($this->getContext()->getRequest()->getRequestUri(), PHP_URL_PATH);
-            $http_path = !str_starts_with($http_path, "/") ? "/$http_path" : $http_path;
-            if (!array_key_exists($http_path, $this->routes)) return null;
-            if (!array_key_exists($http_method, $this->routes[$http_path])) return null;
+        $clazz = get_class($this->controller);
+        $channels = self::getRouterData("channels");
+        if (array_key_exists($clazz, $channels)) return;
+        $channels[$clazz] = $this;
+        self::setRouterData("channels", $channels);
+    }
+
+    public static function run(): void
+    {
+        $context = new Context();
+        $channels = self::getRouterData("channels");
+        $http_method = $context->getRequest()->getMethod();
+        $http_path = parse_url($context->getRequest()->getRequestUri(), PHP_URL_PATH);
+        $http_path = !str_starts_with($http_path, "/") ? "/$http_path" : $http_path;
+        $found = false;
+        foreach ($channels as $channel) {
+            assert($channel instanceof static);
+            if (!isset($channel->routes[$http_path][$http_method])) continue;
+            $method_name = $channel->routes[$http_path][$http_method];
             // Do middlewares
-            $this->executeMiddleware(false, $this->getContext());
+            $channel->executeMiddleware(false, $context);
             // Main
-            $method_name = $this->routes[$http_path][$http_method];
-            if (!method_exists($this->controller, $method_name)) return false;
-            $this->controller->$method_name($this->getContext());
+            if (!($found = method_exists($channel->controller, $method_name))) continue;
+            $channel->controller->$method_name($context);
             // Do middlewares
-            $this->executeMiddleware(true, $this->getContext());
-            return true;
-        };
-        $status = $main();
-        if ($single_controller) {
-            if ($status === null) {
-                $this->getContext()->getResponse()->setStatus(404)->setBody(null)->sendJSON();
-            } else if ($status === false) {
-                $this->getContext()->getResponse()->setStatus(500)->setBody(null)->sendJSON();
-            }
+            $channel->executeMiddleware(true, $context);
+        }
+        if (!$found) {
+            $context
+                ->getResponse()
+                ->setStatus(404)
+                ->setBody([
+                    "message" => "not found",
+                    "description" => "no route register on $http_path"
+                ])
+                ->sendJSON();
         }
     }
 }

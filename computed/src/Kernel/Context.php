@@ -7,6 +7,7 @@ namespace Slim\Kernel;
 class Context
 {
     private State $state;
+    private Session $session;
     private Request $request;
     private Response $response;
     protected Config $config;
@@ -15,6 +16,7 @@ class Context
     public function __construct()
     {
         $this->state = new State();
+        $this->session = new Session();
         $this->request = new Request();
         $this->response = new Response();
         $this->config = new Config();
@@ -27,6 +29,11 @@ class Context
     public function getState(): State
     {
         return $this->state;
+    }
+
+    public function getSession(): Session
+    {
+        return $this->session;
     }
 
     /**

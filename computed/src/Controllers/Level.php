@@ -2,6 +2,7 @@
 
 namespace Slim\Controllers;
 
+use PDOException;
 use Slim\Kernel\Context;
 use Slim\Models\Level as LevelModel;
 use Slim\Models\User;
@@ -48,14 +49,18 @@ final class Level implements ControllerInterface
             return;
         }
         $level = new LevelModel();
-        $level
-            ->setDisplayName($form['display_name'])
-            ->create($context->getDatabase());
-        if ($level->reload($context->getDatabase())->checkReady()) {
+        $level->setDisplayName($form['display_name']);
+        try {
+            $level->create($context->getDatabase());
             $context->getResponse()->setStatus(201)->send();
-        } else {
-            $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();
-        }
+         } catch (PDOException $e) {
+            if ($e->errorInfo[1] == 1062) {
+                $context->getResponse()->setStatus(409)->setBody(["message" => "conflict"])->sendJSON();
+            } else {
+                error_log($e->getMessage());
+                $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();
+            }
+         }
     }
 
     public function putOne(Context $context): void
@@ -74,11 +79,7 @@ final class Level implements ControllerInterface
             ->setId(intval($form['id']))
             ->setDisplayName($form['display_name'])
             ->replace($context->getDatabase());
-        if ($level->reload($context->getDatabase())->checkReady()) {
-            $context->getResponse()->setStatus(201)->send();
-        } else {
-            $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();
-        }
+        $context->getResponse()->setStatus(204)->send();
     }
 
     public function deleteOne(Context $context): void

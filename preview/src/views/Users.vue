@@ -37,6 +37,7 @@
         <v-card v-if="mode === 1" light>
           <v-card-title>新增員工資料</v-card-title>
           <v-card-subtitle>Append User</v-card-subtitle>
+          <v-card-subtitle class="red white--text" v-show="editing.message" v-text="editing.message"/>
           <v-card-text>
             <v-form>
               <v-text-field v-model="editing.target.display_name" label="姓名" type="name"/>
@@ -57,6 +58,7 @@
         <v-card v-if="mode === 3" light>
           <v-card-title>編輯員工資料</v-card-title>
           <v-card-subtitle>Modify User</v-card-subtitle>
+          <v-card-subtitle class="red white--text" v-show="editing.message" v-text="editing.message"/>
           <v-card-text>
             <v-form>
               <v-text-field v-model="editing.target.display_name" label="姓名" type="name"/>
@@ -77,6 +79,7 @@
         <v-card v-if="mode === 4" light>
           <v-card-title>刪除員工資料</v-card-title>
           <v-card-subtitle>Delete User</v-card-subtitle>
+          <v-card-subtitle class="red white--text" v-show="editing.message" v-text="editing.message"/>
           <v-card-text>
             {{ editing.target.display_name }} 的資料將被刪除
           </v-card-text>
@@ -92,6 +95,8 @@
 </template>
 
 <script>
+import capitalize from "capitalize";
+
 import ItemList from "@/components/ItemList";
 import ModifyDrawer from "@/components/ModifyDrawer";
 
@@ -102,6 +107,7 @@ export default {
     loaded: false,
     mode: 0,
     editing: {
+      message: null,
       loading: false,
       target: null,
     },
@@ -152,6 +158,9 @@ export default {
           this.load()
         }
       } catch (e) {
+        this.editing.message = e.response.data.message 
+          ? capitalize(e.response.data.message)
+          : "Failed"
         console.warn(e)
       }
       this.editing.loading = false;
@@ -167,6 +176,9 @@ export default {
           this.load()
         }
       } catch (e) {
+        this.editing.message = e.response.data.message 
+          ? capitalize(e.response.data.message)
+          : "Failed"
         console.warn(e)
       }
       this.editing.loading = false;
@@ -182,6 +194,9 @@ export default {
           this.load()
         }
       } catch (e) {
+        this.editing.message = e.response.data.message 
+          ? capitalize(e.response.data.message)
+          : "Failed"
         console.warn(e)
       }
       this.editing.loading = false;

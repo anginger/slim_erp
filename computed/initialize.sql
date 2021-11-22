@@ -73,13 +73,15 @@ ALTER TABLE `histories`
     ADD PRIMARY KEY (`_id`);
 
 ALTER TABLE `levels`
-    ADD PRIMARY KEY (`_id`);
+    ADD PRIMARY KEY (`_id`),
+    ADD UNIQUE KEY `display_name` (`display_name`);
 
 ALTER TABLE `products`
     ADD PRIMARY KEY (`uuid`);
 
 ALTER TABLE `providers`
-    ADD PRIMARY KEY (`_id`);
+    ADD PRIMARY KEY (`_id`),
+    ADD UNIQUE KEY `display_name` (`display_name`);
 
 ALTER TABLE `users`
     ADD PRIMARY KEY (`uuid`),

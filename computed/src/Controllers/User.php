@@ -107,7 +107,7 @@ final class User implements ControllerInterface
         }
         $user->replace($context->getDatabase());
         if ($user->reload($context->getDatabase())->checkReady()) {
-            $context->getResponse()->setStatus(201)->send();
+            $context->getResponse()->setStatus(204)->send();
         } else {
             $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();
         }

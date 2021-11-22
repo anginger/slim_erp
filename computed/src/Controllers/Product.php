@@ -93,7 +93,7 @@ final class Product implements ControllerInterface
             ->setRemainAmount(intval($form["remain_amount"]))
             ->replace($context->getDatabase());
         if ($product->reload($context->getDatabase())->checkReady()) {
-            $context->getResponse()->setStatus(201)->send();
+            $context->getResponse()->setStatus(204)->send();
         } else {
             $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();
         }

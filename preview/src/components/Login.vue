@@ -21,6 +21,7 @@
       <v-card-subtitle>
         Slim ERP Login
       </v-card-subtitle>
+      <v-card-subtitle class="red white--text" v-show="message" v-text="message"/>
       <v-card-actions v-if="!id_login">
         <v-btn :disabled="true" depressed>
           單一簽入認證
@@ -46,11 +47,14 @@
 </template>
 
 <script>
+import capitalize from "capitalize";
+
 export default {
   name: "Login",
   data: () => ({
     loading: false,
     id_login: false,
+    message: null,
     username: null,
     password: null,
   }),
@@ -64,6 +68,9 @@ export default {
         const response = await this.$axios.post("/authentic/session", form)
         if (response.status === 201) this.$emit("success")
       } catch (e) {
+        this.message = e.response.data.message 
+          ? capitalize(e.response.data.message)
+          : "Failed"
         console.warn(e)
       }
       this.loading = false;

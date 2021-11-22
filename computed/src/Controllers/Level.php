@@ -25,7 +25,7 @@ final class Level implements ControllerInterface
             return;
         }
         if (empty($uuid = $context->getRequest()->getQuery("uuid"))) {
-            $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
+            $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
         $level = (new LevelModel())->load($context->getDatabase(), $uuid);
@@ -88,7 +88,7 @@ final class Level implements ControllerInterface
             return;
         }
         if (empty($id = $context->getRequest()->getQuery("id"))) {
-            $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
+            $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
         (new LevelModel())->setId($id)->destroy($context->getDatabase());

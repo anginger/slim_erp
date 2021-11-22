@@ -2,6 +2,7 @@
 
 namespace Slim\Models;
 
+use InvalidArgumentException;
 use PDO;
 use Slim\Kernel\Database;
 use TypeError;
@@ -175,6 +176,9 @@ class User extends ModelBase implements ModelInterface
      */
     public function setPhone(string $phone): static
     {
+        if (!is_numeric($phone)) {
+            throw new InvalidArgumentException();
+        }
         $this->phone = $phone;
         return $this;
     }

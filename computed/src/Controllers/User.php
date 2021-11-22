@@ -24,7 +24,7 @@ final class User implements ControllerInterface
             return;
         }
         if (empty($uuid = $context->getRequest()->getQuery("uuid"))) {
-            $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
+            $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
         $user = (new UserModel())->load($context->getDatabase(), $uuid);
@@ -101,8 +101,7 @@ final class User implements ControllerInterface
             ->setDisplayName($form['display_name'])
             ->setAddress($form["address"])
             ->setEmail($form["email"])
-            ->setPhone($form["phone"])
-            ->hashPassword();
+            ->setPhone($form["phone"]);
         if (!empty($form["password"])) {
             $user->setPassword($form["password"])->hashPassword();
         }
@@ -121,7 +120,7 @@ final class User implements ControllerInterface
             return;
         }
         if (empty($uuid = $context->getRequest()->getQuery("uuid"))) {
-            $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
+            $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
         (new UserModel())->setUuid($uuid)->destroy($context->getDatabase());

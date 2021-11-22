@@ -25,7 +25,7 @@ final class Provider implements ControllerInterface
             return;
         }
         if (empty($uuid = $context->getRequest()->getQuery("uuid"))) {
-            $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
+            $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
         $provider = (new ProviderModel())->load($context->getDatabase(), $uuid);
@@ -105,7 +105,7 @@ final class Provider implements ControllerInterface
             return;
         }
         if (empty($id = $context->getRequest()->getQuery("id"))) {
-            $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
+            $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
         (new ProviderModel())->setId($id)->destroy($context->getDatabase());

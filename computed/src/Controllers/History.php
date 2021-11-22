@@ -25,7 +25,7 @@ final class History implements ControllerInterface
             return;
         }
         if (empty($uuid = $context->getRequest()->getQuery("uuid"))) {
-            $context->getResponse()->setStatus(403)->setBody(["message" => "bad request"])->sendJSON();
+            $context->getResponse()->setStatus(400)->setBody(["message" => "bad request"])->sendJSON();
             return;
         }
         $product = (new HistoryModel())->load($context->getDatabase(), $uuid);

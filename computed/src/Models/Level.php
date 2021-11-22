@@ -54,11 +54,12 @@ class Level extends ModelBase implements ModelInterface
 
     public function create(Database $db_instance): bool
     {
-        $sql = "INSERT INTO `levels`(`_id`, `display_name`) VALUES (:_id, :display_name)";
+        $sql = "INSERT INTO `levels`(`display_name`) VALUES (:display_name)";
         $stmt = $db_instance->getClient()->prepare($sql);
         $db_instance->bindParamsFilled($stmt, $this->toArray());
+        $status = $stmt->execute();
         $this->setId($db_instance->getClient()->lastInsertId());
-        return $stmt->execute();
+        return $status;
     }
 
     public function replace(Database $db_instance): bool

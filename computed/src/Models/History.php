@@ -56,11 +56,12 @@ class History extends ModelBase implements ModelInterface
 
     public function create(Database $db_instance): bool
     {
-        $sql = "INSERT INTO `histories`(`_id`, `created_time`, `user`, `method`, `resource`) VALUES (:_id, UNIX_TIMESTAMP(), :user, :method, :resource)";
+        $sql = "INSERT INTO `histories`(`created_time`, `user`, `method`, `resource`) VALUES (UNIX_TIMESTAMP(), :user, :method, :resource)";
         $stmt = $db_instance->getClient()->prepare($sql);
         $db_instance->bindParamsFilled($stmt, $this->toArray());
+        $status = $stmt->execute();
         $this->setId($db_instance->getClient()->lastInsertId());
-        return $stmt->execute();
+        return $status;
     }
 
     public function replace(Database $db_instance): bool

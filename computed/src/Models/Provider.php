@@ -57,11 +57,12 @@ class Provider extends ModelBase implements ModelInterface
 
     public function create(Database $db_instance): bool
     {
-        $sql = "INSERT INTO `providers` (`_id`, `display_name`, `contact_name`, `contact_phone`, `contact_address`) VALUES (:_id, :display_name, :contact_name, :contact_phone, :contact_address)";
+        $sql = "INSERT INTO `providers` (`display_name`, `contact_name`, `contact_phone`, `contact_address`) VALUES (:display_name, :contact_name, :contact_phone, :contact_address)";
         $stmt = $db_instance->getClient()->prepare($sql);
         $db_instance->bindParamsFilled($stmt, $this->toArray());
+        $status = $stmt->execute();
         $this->setId($db_instance->getClient()->lastInsertId());
-        return $stmt->execute();
+        return $status;
     }
 
     public function replace(Database $db_instance): bool

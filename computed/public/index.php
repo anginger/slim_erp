@@ -9,9 +9,11 @@ use Slim\Controllers\Product;
 use Slim\Controllers\Provider;
 use Slim\Controllers\User;
 use Slim\Kernel\Router;
+use Slim\Middlewares\CORS;
 use Slim\Middlewares\Access;
 
 (new Router(Authentic::class, "/authentic"))
+    ->addMiddleware(false, CORS::class)
     ->addMiddleware(false, Access::class)
     ->register("GET", "/session", "getSession")
     ->register("POST", "/session", "postSession")
@@ -19,12 +21,14 @@ use Slim\Middlewares\Access;
     ->channel();
 
 (new Router(History::class, "/history"))
+    ->addMiddleware(false, CORS::class)
     ->addMiddleware(false, Access::class)
     ->register("GET", "", "getOne")
     ->register("GET", "/all", "getAll")
     ->channel();
 
 (new Router(User::class, "/user"))
+    ->addMiddleware(false, CORS::class)
     ->addMiddleware(false, Access::class)
     ->register("GET", "", "getOne")
     ->register("POST", "", "postOne")
@@ -34,6 +38,7 @@ use Slim\Middlewares\Access;
     ->channel();
 
 (new Router(Product::class, "/product"))
+    ->addMiddleware(false, CORS::class)
     ->addMiddleware(false, Access::class)
     ->register("GET", "", "getOne")
     ->register("POST", "", "postOne")
@@ -43,6 +48,7 @@ use Slim\Middlewares\Access;
     ->channel();
 
 (new Router(Provider::class, "/provider"))
+    ->addMiddleware(false, CORS::class)
     ->addMiddleware(false, Access::class)
     ->register("GET", "", "getOne")
     ->register("POST", "", "postOne")
@@ -52,6 +58,7 @@ use Slim\Middlewares\Access;
     ->channel();
 
 (new Router(Level::class, "/level"))
+    ->addMiddleware(false, CORS::class)
     ->addMiddleware(false, Access::class)
     ->register("GET", "", "getOne")
     ->register("POST", "", "postOne")

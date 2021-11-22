@@ -8,7 +8,6 @@ use TypeError;
 
 class Router
 {
-    private Context $context;
     private array $routes = [];
     private array $middlewares_before = [];
     private array $middlewares_after = [];

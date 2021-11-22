@@ -8,8 +8,8 @@
     <v-list v-else>
       <v-list-item v-if="empty">
         <v-list-item-content>
-          <v-list-item-title>Empty</v-list-item-title>
-          <v-list-item-subtitle>There is noting.</v-list-item-subtitle>
+          <v-list-item-title>空白</v-list-item-title>
+          <v-list-item-subtitle>空無一物</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
       <slot name="data"/>

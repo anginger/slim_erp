@@ -15,9 +15,7 @@ class CORS implements MiddlewareInterface
 
     public static function toUse(Context $context): void
     {
-        $config = $context->getState()->get("allow_cors");
-        if (is_null($config)) return;
-        assert($config instanceof AllowCORS);
+        if (is_null($config = GeneralCORS::policy($context))) return;
         $context
             ->getResponse()
             ->setHeader("Access-Control-Allow-Origin", $config->getAllowOrigin())

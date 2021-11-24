@@ -2,7 +2,7 @@
 
 namespace Slim\Middlewares;
 
-interface AllowCORS
+interface CORSPolicy
 {
     public function getAllowOrigin(): string;
     public function getAllowMethods(): array;

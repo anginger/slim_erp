@@ -4,7 +4,7 @@ namespace Slim\Middlewares;
 
 use Slim\Kernel\Context;
 
-abstract class GeneralCORS implements CORSPolicy
+class GeneralCORS implements CORSPolicy
 {
     public function __construct(
         private Context $context
@@ -24,8 +24,7 @@ abstract class GeneralCORS implements CORSPolicy
             CORS::METHOD_POST,
             CORS::METHOD_PUT,
             CORS::METHOD_DELETE,
-            CORS::METHOD_PATCH,
-            CORS::METHOD_OPTIONS
+            CORS::METHOD_PATCH
         ];
     }
 

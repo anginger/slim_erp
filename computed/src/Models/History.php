@@ -88,4 +88,34 @@ class History extends ModelBase implements ModelInterface
         $this->_id = $id;
         return $this;
     }
+
+    /**
+     * @param string $user
+     * @return History
+     */
+    public function setUser(string $user): static
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    /**
+     * @param string $method
+     * @return History
+     */
+    public function setMethod(string $method): static
+    {
+        $this->method = $method;
+        return $this;
+    }
+
+    /**
+     * @param string $resource
+     * @return History
+     */
+    public function setResource(string $resource): static
+    {
+        $this->resource = $resource;
+        return $this;
+    }
 }

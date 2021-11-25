@@ -13,6 +13,15 @@ class CORS implements MiddlewareInterface
     public const METHOD_DELETE = "DELETE";
     public const METHOD_OPTIONS = "OPTIONS";
 
+    public static function preflight(): void
+    {
+        $context = new Context();
+        if ($context->getRequest()->getMethod() === self::METHOD_OPTIONS) {
+            self::toUse($context);
+            $context->getResponse()->setStatus(204)->send(true);
+        }
+    }
+
     public static function toUse(Context $context): void
     {
         if (is_null($config = GeneralCORS::policy($context))) return;

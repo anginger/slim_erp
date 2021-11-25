@@ -27,15 +27,17 @@
         class="pl-14"
         shaped
     >
-      <v-list-item
-          v-for="i in rectangles"
-          :key="i.title"
-          @click="action(i)"
-      >
-        <v-list-item-content>
-          <v-list-item-title>{{ i.title }}</v-list-item-title>
-        </v-list-item-content>
-      </v-list-item>
+      <v-list-item-group v-model="current.rectangle">
+        <v-list-item
+            v-for="i in rectangles"
+            :key="i.title"
+            @click="action(i)"
+        >
+          <v-list-item-content>
+            <v-list-item-title>{{ i.title }}</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list-item-group>
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -47,6 +49,9 @@ export default {
   components: {Profile},
   data: () => ({
     drawer: null,
+    current: {
+      rectangle: 0
+    },
     circles: [
       {
         title: "系統設定",
@@ -94,6 +99,9 @@ export default {
         console.error(i)
       }
     }
+  },
+  created() {
+    this.current.rectangle = this.rectangles.findIndex((i) => this.$route.path === i.path)
   }
 }
 </script>

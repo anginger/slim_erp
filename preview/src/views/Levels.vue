@@ -137,7 +137,7 @@ export default {
           this.load()
         }
       } catch (e) {
-        this.editing.message = e.response.data.message 
+        this.editing.message = e.response.data.message
           ? capitalize(e.response.data.message)
           : "Failed"
         console.warn(e)
@@ -150,12 +150,12 @@ export default {
         const form = this.getParams()
         form.set("id", this.editing.target._id)
         const response = await this.$axios.put("/level", form)
-        if (response.status === 201) {
+        if (response.status === 204) {
           this.mode = 0
           this.load()
         }
       } catch (e) {
-        this.editing.message = e.response.data.message 
+        this.editing.message = e.response.data.message
           ? capitalize(e.response.data.message)
           : "Failed"
         console.warn(e)
@@ -173,7 +173,7 @@ export default {
           this.load()
         }
       } catch (e) {
-        this.editing.message = e.response.data.message 
+        this.editing.message = e.response.data.message
           ? capitalize(e.response.data.message)
           : "Failed"
         console.warn(e)

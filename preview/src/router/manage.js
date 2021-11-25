@@ -7,7 +7,7 @@ import Levels from "@/views/Manage/Levels";
 
 export default [
     {
-        path: 'overview',
+        path: '',
         name: 'Overview',
         component: Overview
     },

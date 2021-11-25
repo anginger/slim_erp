@@ -5,12 +5,9 @@
         <v-col v-for="(card, name) in cards" :key="name" cols="12">
           <v-card>
             <v-subheader>{{ name }}</v-subheader>
-            <item-list :key="index" :empty="card.length < 1" :loaded="card">
+            <item-list :empty="card.length < 1" :loaded="card.loaded">
               <template #data>
-                <v-list-item
-                    v-for="(item, index) in card.data"
-                    :key="index"
-                >
+                <v-list-item v-for="(item, index) in card.data" :key="index">
                   <v-list-item-content>
                     <v-list-item-title>
                       {{ item.title }}

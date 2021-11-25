@@ -44,7 +44,7 @@ export default {
   methods: {
     action(i) {
       if (i.path) {
-        if (this.$route.path !== i.path) {
+        if (!this.$route.path.startsWith(i.path)) {
           this.$router.push(i.path)
         }
       } else if (i.url) {

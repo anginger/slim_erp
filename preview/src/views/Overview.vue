@@ -5,25 +5,23 @@
         <v-col v-for="(card, name) in cards" :key="name" cols="12">
           <v-card>
             <v-subheader>{{ name }}</v-subheader>
-            <v-list two-line>
-              <template v-for="(item, index) in card.data">
-                <v-list-item :key="index">
-                  <v-list-item-avatar color="grey darken-1">
-                  </v-list-item-avatar>
+            <item-list :key="index" :empty="card.length < 1" :loaded="card">
+              <template #data>
+                <v-list-item
+                    v-for="(item, index) in card.data"
+                    :key="index"
+                >
                   <v-list-item-content>
-                    <v-list-item-title>{{ item.title }}</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      item.description
-                    }}</v-list-item-subtitle>
+                    <v-list-item-title>
+                      {{ item.title }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      {{ item.description }}
+                    </v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
-                <v-divider
-                  v-if="index !== card.data.length - 1"
-                  :key="`divider-${index}`"
-                  inset
-                ></v-divider>
               </template>
-            </v-list>
+            </item-list>
           </v-card>
         </v-col>
       </v-row>
@@ -32,8 +30,11 @@
 </template>
 
 <script>
+import ItemList from "@/components/ItemList";
+
 export default {
   name: "Overview",
+  components: {ItemList},
   data: () => ({
     cards: {
       Overview: {
@@ -61,7 +62,9 @@ export default {
         this.cards.History.loaded = true;
         this.cards.History.data = resp.data.map((item) => ({
           title: Date(item.created_time * 1000).toLocaleString(),
-          description: `User ${item.user} requested to ${item.method.toLowerCase()} ${item.resource}`
+          description: `User ${
+              item.user
+          } requested to ${item.method.toLowerCase()} ${item.resource}`,
         }));
       });
     },

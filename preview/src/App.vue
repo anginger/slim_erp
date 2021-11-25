@@ -4,7 +4,10 @@
     <login v-else-if="!$store.state.ready" @success="loginSuccess"/>
     <div v-else>
       <app-bar/>
-      <outer-nav-drawer/>
+      <v-navigation-drawer app>
+        <nav-drawer/>
+        <drawer/>
+      </v-navigation-drawer>
       <v-main>
         <router-view/>
       </v-main>
@@ -15,13 +18,14 @@
 
 <script>
 import AppBar from "./components/Layout/AppBar";
-import OuterNavDrawer from "./components/Layout/NavDrawer";
+import NavDrawer from "./components/Layout/NavDrawer";
 import AppFooter from "./components/Layout/AppFooter";
 import Login from "./components/Login";
 import Loading from "./components/Loading";
+import Drawer from "./components/Layout/Drawer";
 
 export default {
-  components: {Loading, Login, AppFooter, OuterNavDrawer, AppBar},
+  components: {Drawer, Loading, Login, AppFooter, NavDrawer, AppBar},
   methods: {
     async checkStatus() {
       try {

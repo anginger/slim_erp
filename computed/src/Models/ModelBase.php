@@ -5,7 +5,6 @@
 namespace Slim\Models;
 
 use JsonSerializable;
-use Slim\Kernel\UnknownResultTypException;
 
 abstract class ModelBase implements JsonSerializable
 {

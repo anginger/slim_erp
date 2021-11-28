@@ -2,6 +2,7 @@
 
 namespace Slim\Controllers;
 
+use PDOException;
 use Slim\Kernel\Context;
 use Slim\Models\Provider as ProviderModel;
 use Slim\Models\User;

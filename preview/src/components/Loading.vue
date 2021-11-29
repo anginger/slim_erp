@@ -27,7 +27,7 @@
       </v-card-subtitle>
       <v-card-subtitle>
         &copy; Slim 版權為
-        <a class="text-decoration-none" href="https://github.com/supersonictw">SuperSonic</a>
+        <a class="text-decoration-none" href="https://starinc.xyz">Star Inc.</a>
         所有，以 MIT 條款開放原始碼授權。
       </v-card-subtitle>
     </v-card>

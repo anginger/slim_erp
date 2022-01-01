@@ -249,3 +249,7 @@ fabric.properties
 # Recommended template: Node.gitignore
 docs/_book
 test/
+
+# mac
+.DS_Store
+

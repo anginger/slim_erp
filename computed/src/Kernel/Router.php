@@ -4,6 +4,7 @@ namespace Slim\Kernel;
 
 use Slim\Controllers\ControllerInterface;
 use Slim\Middlewares\MiddlewareInterface;
+use Exception;
 use TypeError;
 
 class Router
@@ -107,7 +108,12 @@ class Router
 
     public static function run(): void
     {
-        $context = new Context();
+        try {
+            $context = new Context();
+        } catch (Exception $e) {
+            http_response_code(503);
+            error_log($e->getMessage());
+        }
         $channels = self::getRouterData("channels");
         $http_method = $context->getRequest()->getMethod();
         $http_path = parse_url($context->getRequest()->getRequestUri(), PHP_URL_PATH);

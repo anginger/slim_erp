@@ -1,6 +1,5 @@
 import Overview from '@/views/Manage/Overview.vue'
 import Users from "@/views/Manage/Users";
-import Logout from "@/views/Manage/Logout";
 import Products from "@/views/Manage/Products";
 import Provider from "@/views/Manage/Providers";
 import Levels from "@/views/Manage/Levels";
@@ -30,10 +29,5 @@ export default [
         path: 'levels',
         name: 'Levels',
         component: Levels
-    },
-    {
-        path: 'logout',
-        name: 'Logout',
-        component: Logout
     }
 ]

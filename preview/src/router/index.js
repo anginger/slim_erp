@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import manage from "./manage";
 import Manage from "../views/Manage";
+import Logout from "@/views/Logout";
 
 Vue.use(VueRouter)
 
@@ -11,6 +12,11 @@ const routes = [
     name: 'Manage',
     component: Manage,
     children: manage
+  },
+  {
+      path: '/logout',
+      name: 'Logout',
+      component: Logout
   }
 ]
 

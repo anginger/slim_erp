@@ -44,10 +44,13 @@ export default {
     async checkStatus() {
       try {
         const response = await this.$axios.get("/authentic/session");
-        this.disconnected = response.status === 503;
         this.$store.commit("setReady", response.status === 200);
         this.$store.commit("setUser", response.data);
       } catch (e) {
+        if (e.response) {
+          this.$store.commit("setReady", e.response.status === 200);
+          this.disconnected = e.response.status === 503;
+        }
         console.warn(e);
       }
       setTimeout(() => {

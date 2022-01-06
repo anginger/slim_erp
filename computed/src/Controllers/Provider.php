@@ -62,14 +62,14 @@ final class Provider implements ControllerInterface
         try {
             $provider->create($context->getDatabase());
             $context->getResponse()->setStatus(201)->send();
-         } catch (PDOException $e) {
+        } catch (PDOException $e) {
             if ($e->errorInfo[1] == 1062) {
                 $context->getResponse()->setStatus(409)->setBody(["message" => "conflict"])->sendJSON();
             } else {
                 error_log($e->getMessage());
                 $context->getResponse()->setStatus(500)->setBody(["message" => "internal server error"])->sendJSON();
             }
-         }
+        }
     }
 
     public function putOne(Context $context): void

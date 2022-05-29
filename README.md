@@ -1,6 +1,6 @@
-# Slim
+# SlimERP
 
-Slim是一款輕量級ERP系統，面向臺灣客戶設計。
+SlimERP 是一款輕量級 ERP 系統，面向臺灣客戶設計。
 
 SlimERP is a lightweight ERP system designed for Taiwanese. 
 
